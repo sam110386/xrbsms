@@ -20,6 +20,7 @@ Route::group([
     $router->get('/clients/create', 'ClientController@create')->name('Client.create');
 
     $router->post('/clients', 'ClientController@store')->name('Client.store');
+    $router->match(['put', 'patch'], '/clients/{id}','ClientController@update');
     $router->delete('/clients/{id}', 'ClientController@destroy')->where('id', '[0-9]+');
 
 

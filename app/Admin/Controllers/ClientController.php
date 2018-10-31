@@ -39,7 +39,7 @@ class ClientController extends Controller
         return $content
             ->header('Clients')
             ->description('Create clients...')
-            ->body($this->form());
+            ->body($this->form('/admin/clients'));
     }
     /**
      * Store a newly created resource in storage.
@@ -61,12 +61,29 @@ class ClientController extends Controller
             return back();
         }
     }
+
     /**
-     * Display the specified resource.
+     * Store a newly created resource in storage.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function update($id,Request $request){
+        $client = request()->validate([
+            'name' => 'required',
+            'phone' => 'required'
+        ]);
+        if(Client::findOrFail($id)->update($request->all())){
+            admin_success('Success','Client has been successfully updated!');
+            return redirect()->route('Clients.index');
+        }else{
+            admin_error('Error','Something went wrong! Please Try Again.');
+            return back();
+        }
+    }
+    
+
+
     /**
      * Show interface.
      *
@@ -106,10 +123,12 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        
-        //Client::destroy($id);
-        //return redirect()->route('Clients.index')
-        //->with('success','Client deleted successfully');
+        if(Client::destroy($id)){
+            $res = ['status' => true, 'message' => 'Client has been removed.'];
+        }else{
+            $res = ['status' => false, 'message' => 'Something went wrong!'];
+        }
+        return response()->JSON($res);
     }    
 
     /**
@@ -177,14 +196,14 @@ class ClientController extends Controller
         return $grid;
     }
 
-    public function form()
+    public function form($action = null)
     {
         $clientModel = config('admin.database.client_model');
         
 
         $form = new Form(new $clientModel());
         
-        $form->setAction('/admin/clients');
+        if($action) $form->setAction($action);
         
         $form->display('id', 'ID');
 
