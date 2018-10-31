@@ -126,8 +126,10 @@ class ClientController extends Controller
         $show = new Show($clientModel::findOrFail($id));
 
         $show->id('ID');
-        $show->name(trans('admin.name'));
-        $show->phone(trans('admin.phone'));
+        $show->name(trans('Name'));
+        $show->phone(trans('Phone'));
+        $show->gender(trans('Gender'))->using(['M' => 'Male', 'F' => 'Female']);
+        $show->status(trans('Status'))->using(['0' => 'Inactive', '1' => 'Active']);
         $show->created_at(trans('admin.created_at'));
         $show->updated_at(trans('admin.updated_at'));
 
@@ -139,13 +141,24 @@ class ClientController extends Controller
         $clientModel = config('admin.database.client_model');
 
         $grid = new Grid(new $clientModel());
-
+        $grid->disableExport();
         $grid->id('ID')->sortable();
-        //$grid->username(trans('admin.username'));
-        $grid->name(trans('admin.name'))->sortable();
-        $grid->phone(trans('admin.phone'))->sortable();
-        $grid->created_at(trans('admin.created_at'))->sortable();
-        $grid->updated_at(trans('admin.updated_at'))->sortable();
+        $grid->name(trans('Name'))->sortable();
+        $grid->phone(trans('Phone'))->sortable();
+        $grid->gender(trans('Gender'))->sortable()->display(function($gender){
+            $g = "";
+            if($gender == 'F'){
+                $g = "Female";
+            }elseif($gender == 'M'){
+                $g = "Male";
+            }
+            return $g;
+        });
+        $grid->status(trans('Status'))->display(function($status){
+            return ($status) ? 'Active' : 'Inative';
+        });     
+        $grid->created_at(trans('Created_at'))->sortable();
+        $grid->updated_at(trans('Updated_at'))->sortable();
 
         
         $grid->actions(function (Grid\Displayers\Actions $actions) {

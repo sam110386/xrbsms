@@ -16,7 +16,7 @@ class ModifyClientsTable extends Migration
         Schema::table('clients', function (Blueprint $table) {
             $table->string('user_type',10)->nullable()->change();
             $table->string('gender',6)->nullable()->change();
-            $table->string('language')->nullable()->change();
+            $table->string('language')->default('en')->change();
             $table->date('registration_date')->nullable()->change();
             $table->string('location')->nullable()->change();
             $table->boolean('status')->default(0)->change();
