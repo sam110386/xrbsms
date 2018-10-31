@@ -49,14 +49,17 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {   
-        print_r($request->all());
         $valid = request()->validate([
 			'name' => 'required',
 			'phone' => 'required'
         ]);
-
-        Client::create($request->all());
-        return redirect()->route('Clients.index')->with('success','Client created successfully');
+        if(Client::create($request->all())){
+            admin_success('Success','Client has been successfully added!');
+            return redirect()->route('Clients.index');
+        }else{
+            admin_error('Error','Something went wrong! Please Try Again.');
+            return back();
+        }
     }
     /**
      * Display the specified resource.
@@ -95,7 +98,6 @@ class ClientController extends Controller
             ->body($this->form()->edit($id));
     }
 
-
     /**
      * Remove the specified resource from storage.
      *
@@ -104,9 +106,10 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        Client::destroy($id);
-        return redirect()->route('Clients.index')
-                        ->with('success','Client deleted successfully');
+        
+        //Client::destroy($id);
+        //return redirect()->route('Clients.index')
+        //->with('success','Client deleted successfully');
     }    
 
     /**
@@ -139,15 +142,17 @@ class ClientController extends Controller
 
         $grid->id('ID')->sortable();
         //$grid->username(trans('admin.username'));
-        $grid->name(trans('admin.name'));
-        //$grid->roles(trans('admin.roles'))->pluck('name')->label();
-        $grid->created_at(trans('admin.created_at'));
-        $grid->updated_at(trans('admin.updated_at'));
+        $grid->name(trans('admin.name'))->sortable();
+        $grid->phone(trans('admin.phone'))->sortable();
+        $grid->created_at(trans('admin.created_at'))->sortable();
+        $grid->updated_at(trans('admin.updated_at'))->sortable();
 
+        
         $grid->actions(function (Grid\Displayers\Actions $actions) {
-            if ($actions->getKey() == 1) {
-                $actions->disableDelete();
-            }
+            // $actions->resource = 'client/delete';
+            // if ($actions->getKey() == 1) {
+            //     $actions->disableDelete();
+            // }
         });
 
         $grid->tools(function (Grid\Tools $tools) {
