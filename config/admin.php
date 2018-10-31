@@ -175,6 +175,8 @@ return [
         'role_menu_table'        => 'admin_role_menu',
         'client_table' => 'clients',
         'client_model' => App\Models\Client::class,
+        'smslog_table' => 'smslogs',
+        'smslog_model' => App\Models\Smslog::class,
     ],
 
     /*
@@ -316,4 +318,9 @@ return [
     'extensions' => [
 
     ],
+    'smsgateway'=>[
+        'apikey'=>"xxxx",
+        'gatewayurl'=>'http://google.com',
+        'apitoken'=>'xxx',
+    ]
 ];

@@ -26,4 +26,5 @@ Route::group([
     // SMS Routes
     $router->get('/sms', 'SmsController@index')->name('Sms.index');
     $router->get('/sms/new', 'SmsController@new')->name('Sms.new');
+    $router->post('/sms/send', 'SmsController@send')->name('Sms.send');
 });
