@@ -28,4 +28,9 @@ Route::group([
     $router->get('/sms', 'SmsController@index')->name('Sms.index');
     $router->get('/sms/new', 'SmsController@new')->name('Sms.new');
     $router->post('/sms/send', 'SmsController@send')->name('Sms.send');
+    //Sms Logs
+    $router->get('/smslogs', 'SmslogsController@index')->name('Smslogs.index');
+    $router->get('/smslogs/index', 'SmslogsController@index')->name('Smslogs.index1');
+    $router->get('/smslogs/{id}', 'SmslogsController@show')->name('Smslogs.show')->where('id', '[0-9]+');
+    $router->delete('/smslogs/{id}', 'SmslogsController@destroy')->where('id', '[0-9]+');
 });

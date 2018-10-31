@@ -322,5 +322,12 @@ return [
         'apikey'=>"xxxx",
         'gatewayurl'=>'http://google.com',
         'apitoken'=>'xxx',
+    ],
+    'smslogtypes'=>[
+        '0'=>"Manually Sent",
+        '1'=>'Registration Remainder',
+        '2'=>'Motor Vehicle Remainder',
+        '3'=>'Driving Licence Remainder',
+        '4'=>'Revenue and Payment Remainder',
     ]
 ];
