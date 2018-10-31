@@ -3,12 +3,13 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
-
+use Illuminate\Support\MessageBag;
 class SmsController extends Controller
 {
     use HasResourceActions;
@@ -57,6 +58,8 @@ class SmsController extends Controller
             ->body($this->form()->edit($id));
     }
 
+
+
     /**
      * Create interface.
      *
@@ -66,9 +69,46 @@ class SmsController extends Controller
     public function new(Content $content)
     {
         return $content
-            ->header('Create')
-            ->description('description')
+            ->header('SMS')
+            ->description('Send New SMS')
             ->body($this->form());
+    }
+
+    public function send(Request $request)
+    {   
+        
+        $valid = request()->validate([
+            'message' => 'required'
+        ]);
+        
+        $clients=$request->input('clients');
+        if(is_array($clients)){
+            $clients=array_filter($clients);
+        }
+        if (empty($request->input('phones')) && empty($clients)) {
+            admin_error('','Please enter phone# or select client');
+            return back();
+        }
+        
+        $smslogModel = config('admin.database.smslog_model');
+        $smslogModel=new $smslogModel();
+        if(!empty($request->input('phones'))){
+            $phones=$request->input('phones');
+            $phones=explode(',',$phones);
+            foreach($phones as $phone){
+                $smslogModel->sendAndLogSms(array('phone'=>$phone,'message'=>$request->input('message')));
+            }
+        }else{
+            $clientModel = config('admin.database.client_model');
+            foreach($clients as $client){
+                $ClientData=$clientModel::find($client);
+                if(!empty($ClientData) && $ClientData->phone){
+                    $smslogModel->sendAndLogSms(array('client_id'=>$ClientData->id,'phone'=>$ClientData->phone,'message'=>$request->input('message')));
+                }
+            }
+        }
+        admin_success('','Sms sent successfully');
+        return redirect()->route('Sms.index');
     }
 
     /**
@@ -112,11 +152,11 @@ class SmsController extends Controller
     protected function form()
     {
         
+        $smslogModel = config('admin.database.smslog_model');
         $clientModel = config('admin.database.client_model');
-
-        $form = new Form();
+        $form = new Form(new $smslogModel());
         $form->text('phones', trans('Mobile Number'));
-        $form->multipleSelect('clients', trans('admin.clients'))->options($clientModel::all()->pluck('name', 'id'));
+        $form->multipleSelect('clients', trans('Search Client'))->options($clientModel::all()->pluck('name', 'id'));
         $form->textarea('message', trans('Message'))->rules('required');
         $form->setAction('/admin/sms/send');
         $form->footer(function ($footer) {
@@ -130,9 +170,20 @@ class SmsController extends Controller
             $footer->disableCreatingCheck();
 
         });
-        $form->saving(function (Form $form) {
-            
-        });
+        
+            $form->saving(function ($form) {
+                if (empty($form->phones) && empty($form->clients)) {
+                    $error = new MessageBag([
+                        'title'   => 'title...',
+                        'message' => 'Please enter phone# or select client',
+                    ]);
+                    return back()->with(compact('error'));
+                }
+            });
+            $form->saved(function () {
+                admin_toastr(trans('admin.update_succeeded'));
+                return redirect(admin_base_path('/sms'));
+            });
         return $form;
     }
 }

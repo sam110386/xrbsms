@@ -13,11 +13,13 @@ class Smslogs extends Migration
      */
     public function up()
     {
-        Schema::create('smslogs', function (Blueprint $table) {
+         Schema::create('smslogs', function (Blueprint $table) {
             $table->increments('id');
             $table->string('phone');
             $table->string('message',500);
-            $table->integar('client_id')->nullable();
+            $table->integer('client_id')->nullable();
+            $table->integer('status',1)->default(0);
+            $table->integer('type',6)->default(0);
             $table->timestamps();
         });
     }
