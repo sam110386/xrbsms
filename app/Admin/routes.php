@@ -11,15 +11,16 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
-    $router->get('/example', 'ExampleController@index')->name('Example.index');
 
     // Clients Routes
     $router->get('/clients', 'ClientController@index')->name('Clients.index');
-    $router->get('/clients/show', 'ClientController@show')->name('Client.show');
-    $router->get('/clients/edit/{id}', 'ClientController@edit')->name('Client.edit');
+    $router->get('/clients/{id}', 'ClientController@show')->name('Client.show')->where('id', '[0-9]+');
+    $router->get('/clients/{id}/edit/', 'ClientController@edit')->name('Client.edit')->where('id', '[0-9]+');
+
     $router->get('/clients/create', 'ClientController@create')->name('Client.create');
-    //$router->post('/clients/store', 'ClientController@store')->name('Client.store');
+
     $router->post('/clients', 'ClientController@store')->name('Client.store');
+    $router->delete('/clients/{id}', 'ClientController@destroy')->where('id', '[0-9]+');
 
 
 
