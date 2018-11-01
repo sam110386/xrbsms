@@ -34,4 +34,20 @@ Route::group([
     $router->get('/smslogs/index', 'SmslogsController@index')->name('Smslogs.index1');
     $router->get('/smslogs/{id}', 'SmslogsController@show')->name('Smslogs.show')->where('id', '[0-9]+');
     $router->delete('/smslogs/{id}', 'SmslogsController@destroy')->where('id', '[0-9]+');
+
+    //setting
+    $router->get('/setting', 'SettingController@index')->name('Setting.index');
+    $router->get('/setting/smspisetting', 'SettingController@smspisetting')->name('Setting.smspisetting');
+    $router->match(['put', 'patch','post'],'/setting/smsapiformsave', 'SettingController@smsapiformsave')->name('Setting.smsapiformsave');
+
+    // SMS Scheddule Routes
+    $router->get('/smsschedule', 'SmsscheduleController@index')->name('Smsschedule.index');
+    $router->get('/smsschedule/{id}', 'SmsscheduleController@show')->name('Smsschedule.show')->where('id', '[0-9]+');
+    $router->get('/smsschedule/{id}/edit/', 'SmsscheduleController@edit')->name('Smsschedule.edit')->where('id', '[0-9]+');
+
+    $router->get('/smsschedule/create', 'SmsscheduleController@create')->name('Smsschedule.create');
+
+    $router->post('/smsschedule/store', 'SmsscheduleController@store')->name('Smsschedule.store');
+    $router->match(['put', 'patch'], '/smsschedule/{id}','SmsscheduleController@update');
+    $router->delete('/smsschedule/{id}', 'SmsscheduleController@destroy')->where('id', '[0-9]+');
 });
