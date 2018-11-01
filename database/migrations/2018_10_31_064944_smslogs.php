@@ -18,8 +18,8 @@ class Smslogs extends Migration
             $table->string('phone');
             $table->string('message',500);
             $table->integer('client_id')->nullable();
-            $table->integer('status',1)->default(0);
-            $table->integer('type',6)->default(0);
+            $table->boolean('status')->default(0);
+            $table->integer('type')->default(0);
             $table->timestamps();
         });
     }
