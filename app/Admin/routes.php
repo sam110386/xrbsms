@@ -33,7 +33,7 @@ Route::group([
     $router->get('/smslogs', 'SmslogsController@index')->name('Smslogs.index');
     $router->get('/smslogs/index', 'SmslogsController@index')->name('Smslogs.index1');
     $router->get('/smslogs/{id}', 'SmslogsController@show')->name('Smslogs.show')->where('id', '[0-9]+');
-    $router->delete('/smslogs/{id}', 'SmslogsController@destroy')->where('id', '[0-9]+');
+    $router->delete('/smslogs/{id}', 'SmslogsController@destroy')->where('id', '[0-9 ,]+');
 
     //setting
     $router->get('/setting', 'SettingController@index')->name('Setting.index');

@@ -17,11 +17,14 @@ class SmsscheduleController extends Controller
     
     public function index(Content $content)
     {
-        return $content
-            ->header('Schedules')
-            ->description('Manage Schedule...')
+         $content
+            ->header('SMS Contents')
+            ->description('Manage ...')
             ->body($this->grid()->render());
-
+        $content->breadcrumb(
+                ['text' => 'SMS Contents']
+            );
+        return $content;
     }
 
     /**
@@ -32,10 +35,15 @@ class SmsscheduleController extends Controller
     public function create(Content $content)
     { 
         //return view('Clients.create');
-        return $content
-            ->header('SMS Schedules')
+         $content
+            ->header('SMS Contents')
             ->description('Create...')
             ->body($this->form('/admin/smsschedule/store'));
+            $content->breadcrumb(
+                ['text' => 'SMS Contents', 'url' => '/admin/smsschedule'],
+                ['text' => 'Create']
+            );
+            return $content;
     }
     /**
      * Store a newly created resource in storage.
@@ -98,10 +106,15 @@ class SmsscheduleController extends Controller
      */
     public function show($id, Content $content)
     {
-        return $content
-            ->header(trans('admin.administrator'))
-            ->description(trans('admin.detail'))
+         $content
+            ->header('SMS Contents')
+            ->description('...')
             ->body($this->detail($id));
+            $content->breadcrumb(
+                ['text' => 'SMS Contents', 'url' => '/admin/smsschedule'],
+                ['text' => Smsscheduletype::find($id)->title]
+            );
+            return $content;
     }
 
     /**
@@ -113,10 +126,15 @@ class SmsscheduleController extends Controller
      */
     public function edit($id, Content $content)
     {
-        return $content
-            ->header(trans('admin.administrator'))
-            ->description(trans('admin.edit'))
+         $content
+             ->header('SMS Contents')
+            ->description('...')
             ->body($this->form()->edit($id));
+            $content->breadcrumb(
+                ['text' => 'SMS Contents', 'url' => '/admin/smsschedule'],
+                ['text' => Smsscheduletype::find($id)->title]
+            );
+            return $content;
     }
 
     /**
@@ -147,7 +165,7 @@ class SmsscheduleController extends Controller
         
         $show = new Show(Smsscheduletype::findOrFail($id));
 
-        $show->id('ID');
+        //$show->id('ID');
         $show->title(trans('Title'));
         $show->username(trans('API Username'));
         $show->password(trans('API Password'));
@@ -157,8 +175,8 @@ class SmsscheduleController extends Controller
         $show->lastrundatetime(trans('Last Run'));
         $show->lastrunsms(trans('Last SMS Sent'));
         $show->status(trans('Status'))->using(['0' => 'Inactive', '1' => 'Active']);
-        $show->created_at(trans('admin.created_at'));
-        $show->updated_at(trans('admin.updated_at'));
+       // $show->created_at(trans('admin.created_at'));
+        //$show->updated_at(trans('admin.updated_at'));
 
         return $show;
     }
@@ -170,8 +188,8 @@ class SmsscheduleController extends Controller
         $grid->disableExport();
         $grid->id('ID')->sortable();
         $grid->title(trans('Title'));
-        $grid->username(trans('API Username'));
-        $grid->password(trans('API Password'));
+        //$grid->username(trans('API Username'));
+        //$grid->password(trans('API Password'));
         $grid->status(trans('Status'))->display(function($status){
             return ($status) ? 'Active' : 'Inative';
         });
@@ -180,9 +198,9 @@ class SmsscheduleController extends Controller
         });
         $grid->lastrundatetime(trans('Last Run'))->sortable();    
         $grid->lastrunsms(trans('Last SMS Sent'))->sortable();
-        $grid->created_at(trans('Created_at'))->sortable();
-        $grid->updated_at(trans('Updated_at'))->sortable();
-        
+        //$grid->created_at(trans('Created_at'))->sortable();
+        //$grid->updated_at(trans('Updated_at'))->sortable();
+        $grid->disableFilter();
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             
         });
@@ -203,7 +221,7 @@ class SmsscheduleController extends Controller
         
         if($action) $form->setAction($action);
         
-        $form->display('id', 'ID');
+        $form->hidden('id');
 
         $form->text('title', 'Title')->rules('required');
         $form->text('username', 'API Username')->rules('required');
@@ -212,9 +230,19 @@ class SmsscheduleController extends Controller
         $form->text('en_smsbody', 'SMS Template')->rules('required');
         $form->select('frequency', 'Frequency')->options(array('1'=>"Daily",'5'=>"5 Days Before",'10'=>'10 Days Before','15'=>'15 Days Before','30'=>'30 Days Before','60'=>'60 Days Before'));
         $form->select('status', 'Status')->options(array('0'=>"Inactive",'1'=>"Active"));
-        $form->display('created_at', trans('admin.created_at'));
-        $form->display('updated_at', trans('admin.updated_at'));
+        //$form->display('created_at', trans('admin.created_at'));
+        //$form->display('updated_at', trans('admin.updated_at'));
+        $form->footer(function ($footer) {
+            // disable reset btn
+            $footer->disableReset();
+            // disable `View` checkbox
+            $footer->disableViewCheck();
+            // disable `Continue editing` checkbox
+            $footer->disableEditingCheck();
+            // disable `Continue Creating` checkbox
+            $footer->disableCreatingCheck();
 
+        });
         $form->saving(function (Form $form) {
             
         });

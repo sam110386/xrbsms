@@ -57,13 +57,26 @@ class SmslogsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        if(Smslog::destroy($id)){
-            $res = ['status' => true, 'message' => 'Sms log has been removed.'];
+    {   
+        if(!empty($id)){
+            if(strpos($id,',') !== false)
+            {   $ids=explode(',', $id);
+                foreach($ids as $id):
+                    Smslog::where('id', $id)->delete();
+                endforeach;
+                $res = ['status' => true, 'message' => 'Sms log has been removed.'];
+            }else{
+                if(Smslog::destroy($id)){
+                    $res = ['status' => true, 'message' => 'Sms log has been removed.'];
+                }else{
+                    $res = ['status' => false, 'message' => 'Something went wrong!'];
+                }
+            }
         }else{
             $res = ['status' => false, 'message' => 'Something went wrong!'];
         }
         return response()->JSON($res);
+    
     }    
 
     /**
@@ -117,7 +130,7 @@ class SmslogsController extends Controller
         $grid->tools(function (Grid\Tools $tools) {
             
             $tools->batch(function (Grid\Tools\BatchActions $actions) {
-                $actions->disableDelete();
+                //$actions->disableDelete();
             });
         });
 

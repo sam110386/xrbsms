@@ -44,7 +44,7 @@ class Homedashboard
             'log-viewer' => [
                 'name' => 'Message Logs',
                 'link' => '/admin/smslogs',
-                'icon' => 'database',
+                'icon' => 'history',
             ],
             'backup' => [
                 'name' => 'Send SMS',
@@ -54,12 +54,12 @@ class Homedashboard
             'config' => [
                 'name' => 'Bulk SMS',
                 'link' => '/admin/sms/new',
-                'icon' => 'envelope',
+                'icon' => 'bulk',
             ],
             'api-tester' => [
                 'name' => 'Clear Logs',
-                'link' => '/admin',
-                'icon' => 'bug',
+                'link' => '/admin/smslogs',
+                'icon' => 'refresh',
             ],
             
         ];
@@ -70,7 +70,7 @@ class Homedashboard
                 'log-viewer' => [
                     'name' => 'Message Logs',
                     'link' => '/admin/smslogs',
-                    'icon' => 'database',
+                    'icon' => 'fa-history',
                 ],
                 'backup' => [
                     'name' => 'Send SMS',
