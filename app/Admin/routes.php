@@ -50,4 +50,8 @@ Route::group([
     $router->post('/smsschedule/store', 'SmsscheduleController@store')->name('Smsschedule.store');
     $router->match(['put', 'patch'], '/smsschedule/{id}','SmsscheduleController@update');
     $router->delete('/smsschedule/{id}', 'SmsscheduleController@destroy')->where('id', '[0-9]+');
+
+    $router->get('/settings', 'GeneralSettingsController@edit')->name('GeneralSettings.view');
+    $router->match(['put', 'patch','post'],'/settings', 'GeneralSettingsController@update')->name('GeneralSettings.update');
+
 });

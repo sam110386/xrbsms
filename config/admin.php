@@ -177,6 +177,8 @@ return [
         'client_model' => App\Models\Client::class,
         'smslog_table' => 'smslogs',
         'smslog_model' => App\Models\Smslog::class,
+        'generalsettings_model' => App\Models\GeneralSetting::class,
+        'generalsettings_table' => 'generalsettings',
     ],
 
     /*
