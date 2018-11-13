@@ -7,6 +7,15 @@
         color: #00a65a;
         margin-right: 10px;
     }
+   .fa-bulk{position: relative;}
+    .fa-bulk::before {content: '\f0e0';}
+    .fa-bulk::after {
+        content: '\f0e0';
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        color: #666;
+    } 
 </style>
 <div class="box box-default">
     <div class="box-header with-border">

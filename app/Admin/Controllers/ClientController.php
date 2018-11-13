@@ -12,6 +12,8 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Helpers\CommonMethod;
+
 class ClientController extends Controller
 {
     
@@ -95,7 +97,7 @@ class ClientController extends Controller
     public function show($id, Content $content)
     {
         return $content
-            ->header(trans('admin.administrator'))
+            ->header(trans('Clients'))
             ->description(trans('admin.detail'))
             ->body($this->detail($id));
     }
@@ -110,7 +112,7 @@ class ClientController extends Controller
     public function edit($id, Content $content)
     {
         return $content
-            ->header(trans('admin.administrator'))
+            ->header(trans('Clients'))
             ->description(trans('admin.edit'))
             ->body($this->form()->edit($id));
     }
@@ -147,10 +149,45 @@ class ClientController extends Controller
         $show->id('ID');
         $show->name(trans('Name'));
         $show->phone(trans('Phone'));
+        $show->user_type(trans('Client Type'))->using([1=>"Individual",2=>"Company"]);
         $show->gender(trans('Gender'))->using(['M' => 'Male', 'F' => 'Female']);
+        $show->language(trans('Language'))->using(['en' => 'English']);
+
+        // ADDRESS INFORMATION
+        $show->address(trans('Street Address'));
+        $show->region(trans('Region'));
+        $show->district(trans('District'));
+        $show->ward(trans('Ward'));
+        $show->zipcode(trans('Zipcode'));
+
+        // REGISTRATION INFORMATION
+        $show->registration_number(trans('Registration Number'));
+        $show->registration_date(trans('Registration Date'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+
+        // TAX INFORMATION
+        $show->exempt(trans('exempt'))->using([1=>"Yes",0 => 'No']);
+        $show->tax_type(trans('Tax Type'))->using(['VAT'=>"VAT",'non-VAT' => 'non-VAT']);
+        $show->filling_type(trans('Filling Type'))->using(['regular'=>"Regular",'lamp-sum' => 'Lamp sum']);
+        $show->filling_period(trans('Filling Period'))->using(['annual'=>"Annual",'quarterly' => 'Quarterly']);
+        $show->filling_currency(trans('Filling Currency'))->using(['TSH'=>"TSH",'USD' => 'USD']);
+        $show->due_date(trans('Due (Expiration)'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $show->total_amount(trans('Total Amount'));
+        $show->penalty_amount(trans('Penalty Amount'));
+        
+        $show->certificate_printed(trans('Certificate Printed'))->using(['0' => 'No', '1' => 'Yes']);
+        
+
         $show->status(trans('Status'))->using(['0' => 'Inactive', '1' => 'Active']);
-        $show->created_at(trans('admin.created_at'));
-        $show->updated_at(trans('admin.updated_at'));
+        $show->created_at(trans('admin.created_at'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $show->updated_at(trans('admin.updated_at'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
 
         return $show;
     }
@@ -176,8 +213,12 @@ class ClientController extends Controller
         $grid->status(trans('Status'))->display(function($status){
             return ($status) ? 'Active' : 'Inative';
         });     
-        $grid->created_at(trans('Created_at'))->sortable();
-        $grid->updated_at(trans('Updated_at'))->sortable();
+        $grid->created_at(trans('Created_at'))->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $grid->updated_at(trans('Updated_at'))->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
 
         
         $grid->actions(function (Grid\Displayers\Actions $actions) {
@@ -205,21 +246,70 @@ class ClientController extends Controller
         
         if($action) $form->setAction($action);
         
-        $form->display('id', 'ID');
+        $form->row(function ($row) use ( $form) {
+            $row->width(6)->text('name', 'Name')->rules('required');
+            $row->width(6)->text('phone', 'Phone')->rules('required');
+            $row->width(6)->select('user_type', 'Client Type')->options(array(1=>"Individual",2=>"Company"));
+            $row->width(6)->select('gender', 'Gender')->options(array('M'=>"Male",'F'=>"Female"));
+            $row->width(6)->select('language', 'Language')->options(array('en'=>"English"));
 
-        $form->text('name', 'Name')->rules('required');
-        $form->text('phone', 'Phone')->rules('required');
-        
-        $form->select('user_type', 'Client Type')->options(array(1=>"Individual",2=>"Company"));
-        $form->select('gender', 'Gender')->options(array('M'=>"Male",'F'=>"Female"));
-        $form->select('status', 'Status')->options(array('0'=>"Inactive",'1'=>"Active"));
-        $form->display('created_at', trans('admin.created_at'));
-        $form->display('updated_at', trans('admin.updated_at'));
+        },$form);
 
+        // ADDRESS INFORMATION
+        $form->row(function ($row) use ( $form) {
+            $row->width(12)->html(
+                "<div class='box-header with-border'><h3 class='box-title text-upper box-header'>ADDRESS INFORMATION</h3></div>"
+            );
+            $row->width(6)->text('address', 'Street Address');
+            $row->width(6)->text('region', 'Region');
+            $row->width(6)->text('district', 'District');
+            $row->width(6)->text('ward', 'Ward');
+            $row->width(6)->text('zipcode', 'Zipcode');
+
+        },$form);
+
+        // REGISTRATION INFORMATION
+        $form->row(function ($row) use ( $form) {
+            $row->width(12)->html(
+                "<div class='box-header with-border'><h3 class='box-title text-upper box-header'>REGISTRATION INFORMATION</h3></div>"
+            );
+            $row->width(6)->text('registration_number', 'Registration Number');
+            $row->width(6)->date('registration_date', 'Registration Date');
+        },$form);
+
+        // TAX INFORMATION
+        $form->row(function ($row) use($form) {
+            $row->width(12)->html(
+                "<div class='box-header with-border'><h3 class='box-title text-upper box-header'>TAX INFORMATION</h3></div>"
+            );
+            $row->width(6)->select('exempt', 'Exempt')->options(array(1=>"Yes",0 => 'No'));
+            $row->width(6)->select('tax_type', 'Tax Type')->options(array('VAT'=>"VAT",'non-VAT' => 'non-VAT'));
+            $row->width(6)->select('filling_type', 'Filling Type')->options(array('regular'=>"Regular",'lamp-sum' => 'Lamp sum'));
+            $row->width(6)->select('filling_period', 'Filling Period')->options(array('annual'=>"Annual",'quarterly' => 'Quarterly'));
+            $row->width(6)->select('filling_currency', 'Filling Currency')->options(array('TSH'=>"TSH",'USD' => 'USD'));
+            $row->width(6)->date('due_date', 'Due (Expiration)');
+            $row->width(6)->text('total_amount', 'Total amount');
+            $row->width(6)->text('penalty_amount', 'Penalty Amount');
+        },$form);
+
+        $form->row(function ($row) use($form) {
+            $row->width(12)->html();
+            $row->width(6)->select('certificate_printed', 'Certificate Printed')->options(array(1=>"Yes",0 => 'No'));
+            $row->width(6)->select('status', 'Status')->options(array(1=>"Active",0 => 'Inactive'));
+
+        },$form);
+        $form->footer(function ($footer) {
+            // disable `View` checkbox
+            $footer->disableViewCheck();
+            // disable `Continue editing` checkbox
+            $footer->disableEditingCheck();
+            // disable `Continue Creating` checkbox
+            $footer->disableCreatingCheck();
+
+        });
         $form->saving(function (Form $form) {
             
         });
-
         return $form;
     }
 }

@@ -7,6 +7,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Routing\Controller;
+use App\Helpers\CommonMethod;
 
 class UserController extends Controller
 {
@@ -84,8 +85,12 @@ class UserController extends Controller
         $grid->username(trans('admin.username'));
         $grid->name(trans('admin.name'));
         $grid->roles(trans('admin.roles'))->pluck('name')->label();
-        $grid->created_at(trans('admin.created_at'));
-        $grid->updated_at(trans('admin.updated_at'));
+        $grid->created_at(trans('admin.created_at'))->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $grid->updated_at(trans('admin.updated_at'))->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
 
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             if ($actions->getKey() == 1) {
@@ -124,8 +129,12 @@ class UserController extends Controller
         $show->permissions(trans('admin.permissions'))->as(function ($permission) {
             return $permission->pluck('name');
         })->label();
-        $show->created_at(trans('admin.created_at'));
-        $show->updated_at(trans('admin.updated_at'));
+        $show->created_at(trans('admin.created_at'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $show->updated_at(trans('admin.updated_at'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
 
         return $show;
     }
@@ -159,8 +168,6 @@ class UserController extends Controller
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
         $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
 
-        $form->display('created_at', trans('admin.created_at'));
-        $form->display('updated_at', trans('admin.updated_at'));
 
         $form->saving(function (Form $form) {
             if ($form->password && $form->model()->password != $form->password) {

@@ -12,6 +12,8 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Helpers\CommonMethod;
+
 class SmslogsController extends Controller
 {
     
@@ -94,7 +96,9 @@ class SmslogsController extends Controller
         $show->id('ID');
         $show->phone(trans('Phone'));
         $show->message(trans('Message Body'));
-        $show->created_at(trans('Time Stamp'));
+        $show->created_at(trans('Time Stamp'))->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
         $show->status()->using(['1' => 'Sent Successfully', '0' => 'Not Sent']);
         $show->type()->using(config('admin.smslogtypes'));
         $show->panel()
@@ -119,7 +123,9 @@ class SmslogsController extends Controller
         $grid->status(trans('Status'))->sortable()->display(function ($status) {
             return $status ? 'Sent Successfully' : 'Failed';
         });
-        $grid->updated_at(trans('Timestamp'))->sortable();
+        $grid->updated_at(trans('Timestamp'))->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });;
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableEdit();
             

@@ -10,6 +10,8 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Support\MessageBag;
+use App\Helpers\CommonMethod;
+
 class SmsController extends Controller
 {
     use HasResourceActions;
@@ -121,8 +123,12 @@ class SmsController extends Controller
         $grid = new Grid(new YourModel);
 
         $grid->id('ID')->sortable();
-        $grid->created_at('Created at');
-        $grid->updated_at('Updated at');
+        $grid->created_at('Created at')->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $grid->updated_at('Updated at')->sortable()->display(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
 
         return $grid;
     }
@@ -138,8 +144,12 @@ class SmsController extends Controller
         $show = new Show(YourModel::findOrFail($id));
 
         $show->id('ID');
-        $show->created_at('Created at');
-        $show->updated_at('Updated at');
+        $show->created_at('Created at')->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
+        $show->updated_at('Updated at')->as(function($date){
+            return CommonMethod::formatDateWithTime($date);
+        });
 
         return $show;
     }

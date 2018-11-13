@@ -9,7 +9,9 @@ class GeneralSetting extends Model
 {
     protected $fillable = [
         'date_format',
-        'timings'
+        'time_from',
+        'time_to',
+
     ];
 
     /**
