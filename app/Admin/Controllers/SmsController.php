@@ -166,7 +166,7 @@ class SmsController extends Controller
         $clientModel = config('admin.database.client_model');
         $form = new Form(new $smslogModel());
         $form->text('phones', trans('Mobile Number'));
-        $form->multipleSelect('clients', trans('Search Client'))->options($clientModel::all()->pluck('name', 'id'));
+        $form->multipleSelect('clients', trans('Search Client'))->options($clientModel, 'name', 'id')->ajax('/admin/clients/autocomplete');//->options($clientModel::all()->pluck('name', 'id'));
         $form->textarea('message', trans('Message'))->rules('required');
         $form->setAction('/admin/sms/send');
         $form->footer(function ($footer) {

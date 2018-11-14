@@ -22,7 +22,7 @@ Route::group([
     $router->post('/clients', 'ClientController@store')->name('Client.store');
     $router->match(['put', 'patch'], '/clients/{id}','ClientController@update');
     $router->delete('/clients/{id}', 'ClientController@destroy')->where('id', '[0-9]+');
-
+    $router->get('/clients/autocomplete', 'ClientController@autocomplete')->name('Clients.autocomplete');
 
 
     // SMS Routes
