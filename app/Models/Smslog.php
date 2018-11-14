@@ -91,7 +91,7 @@ class Smslog extends Model
         $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
         $authorizationEncoded = base64_encode($authorization);
         $baseUrl = $smsApiConfig->apiurl;
-        $from = (isset($smsApiConfig->from)) ? $smsApiConfig->apiurl : "INFOSMS";       
+        $from = (isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS";       
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
