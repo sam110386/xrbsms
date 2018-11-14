@@ -312,4 +312,11 @@ class ClientController extends Controller
         });
         return $form;
     }
+
+
+    public function autocomplete(Request $request)
+    {
+        $q = $request->get('q');
+        return Client::where('name', 'like', "%$q%")->orWhere('phone', 'like', "%$q%")->paginate(null, ['id', 'name as text']);
+    }
 }
