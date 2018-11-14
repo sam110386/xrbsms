@@ -11,7 +11,8 @@ class Smsapisetting extends Model
         'id',
         'username',
         'passowrd',
-        'apiurl'
+        'apiurl',
+        'from'
     ];
 
     /**

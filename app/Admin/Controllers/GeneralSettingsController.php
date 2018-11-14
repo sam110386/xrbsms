@@ -150,6 +150,11 @@ class GeneralSettingsController extends Controller
             $footer->disableCreatingCheck();
 
         });
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableList();
+            $tools->disableView();
+            $tools->disableDelete();
+        });
         $form->saving(function (Form $form) {
             
         });

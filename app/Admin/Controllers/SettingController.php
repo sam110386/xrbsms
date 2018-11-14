@@ -41,7 +41,8 @@ class SettingController extends Controller
         request()->validate([
             'username' => 'required',
             'passowrd' => 'required',
-            'apiurl'=>'required'
+            'apiurl'=>'required',
+            'from'=>'required'
         ]);
 
         if(Smsapisetting::findOrFail(1)->update($request->all())){
@@ -61,6 +62,7 @@ class SettingController extends Controller
         $form->hidden('id','');
         $form->text('username', trans('API Username'))->rules('required');
         $form->text('passowrd', trans('API Password'))->rules('required');
+        $form->text('from', trans('API From'))->rules('required');
         $form->url('apiurl', trans('API HTTTP URL'))->rules('required');
         $form->setAction('/admin/setting/smsapiformsave');
         $form->footer(function ($footer) {
@@ -74,7 +76,11 @@ class SettingController extends Controller
             $footer->disableCreatingCheck();
 
         });
-        
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableList();
+            $tools->disableView();
+            $tools->disableDelete();
+        });        
             $form->saved(function () {
                 admin_toastr(trans('admin.update_succeeded'));
                 return redirect(admin_base_path('/setting/smsapiform'));
