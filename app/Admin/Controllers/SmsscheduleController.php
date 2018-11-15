@@ -40,7 +40,7 @@ class SmsscheduleController extends Controller
             ->description('Create...')
             ->body($this->form('/admin/smsschedule/store'));
             $content->breadcrumb(
-                ['text' => 'SMS Contents', 'url' => '/admin/smsschedule'],
+                ['text' => 'SMS Contents', 'url' => '/smsschedule'],
                 ['text' => 'Create']
             );
             return $content;
@@ -111,7 +111,7 @@ class SmsscheduleController extends Controller
             ->description('...')
             ->body($this->detail($id));
             $content->breadcrumb(
-                ['text' => 'SMS Contents', 'url' => '/admin/smsschedule'],
+                ['text' => 'SMS Contents', 'url' => '/smsschedule'],
                 ['text' => Smsscheduletype::find($id)->title]
             );
             return $content;
@@ -131,7 +131,7 @@ class SmsscheduleController extends Controller
             ->description('...')
             ->body($this->form()->edit($id));
             $content->breadcrumb(
-                ['text' => 'SMS Contents', 'url' => '/admin/smsschedule'],
+                ['text' => 'SMS Contents', 'url' => '/smsschedule'],
                 ['text' => Smsscheduletype::find($id)->title]
             );
             return $content;

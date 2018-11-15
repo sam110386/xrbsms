@@ -96,10 +96,15 @@ class ClientController extends Controller
      */
     public function show($id, Content $content)
     {
-        return $content
+         $content
             ->header(trans('Clients'))
             ->description(trans('admin.detail'))
             ->body($this->detail($id));
+        $content->breadcrumb(
+                ['text' => 'Clients', 'url' => '/clients'],
+                ['text' => Client::find($id)->name]
+            );
+            return $content;
     }
 
     /**
@@ -111,10 +116,15 @@ class ClientController extends Controller
      */
     public function edit($id, Content $content)
     {
-        return $content
+        $content
             ->header(trans('Clients'))
             ->description(trans('admin.edit'))
             ->body($this->form()->edit($id));
+        $content->breadcrumb(
+                ['text' => 'Clients', 'url' => '/clients'],
+                ['text' => Client::find($id)->name]
+            );
+        return $content;
     }
 
     /**
@@ -185,9 +195,9 @@ class ClientController extends Controller
         $show->created_at(trans('admin.created_at'))->as(function($date){
             return CommonMethod::formatDateWithTime($date);
         });
-        $show->updated_at(trans('admin.updated_at'))->as(function($date){
+        /*$show->updated_at(trans('admin.updated_at'))->as(function($date){
             return CommonMethod::formatDateWithTime($date);
-        });
+        });*/
 
         return $show;
     }
