@@ -16,8 +16,8 @@ class CreateSettings extends Migration
          Schema::create('generalsettings', function (Blueprint $table) {
             $table->increments('id');
             $table->string('date_format')->default('d/m/Y');
-            $table->string('time_from')->after('date_format')->default('01');
-            $table->string('time_to')->after('time_from')->default('24');
+            $table->string('time_from')->default('01');
+            $table->string('time_to')->default('24');
             $table->timestamps();
         });
     }

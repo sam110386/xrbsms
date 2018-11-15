@@ -61,7 +61,7 @@ class SettingController extends Controller
         $form = new Form(new Smsapisetting());
         $form->hidden('id','');
         $form->text('username', trans('API Username'))->rules('required');
-        $form->text('passowrd', trans('API Password'))->rules('required');
+        $form->password('passowrd', trans('API Password'))->rules('required');
         $form->text('from', trans('API From'))->rules('required');
         $form->url('apiurl', trans('API HTTTP URL'))->rules('required');
         $form->setAction('/admin/setting/smsapiformsave');
