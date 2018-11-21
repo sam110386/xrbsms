@@ -74,8 +74,9 @@ class Smslog extends Model
 
     /***send SMS API**/
     public function sendAndLogSms(array $data = []){
-        $spikey=config('admin.smsgateway.spikey');
+        
         $phone=$data['phone'];
+        $phone="+255".substr(preg_replace("/[^0-9]/", "",$phone),-9);
         $msg=$data['message'];
         $dataToSave=array("phone"=>$phone,'message'=>$msg);
         if(isset($data['client_id']) && !empty($data['client_id'])){
@@ -111,6 +112,7 @@ class Smslog extends Model
         ));
 
         $response = curl_exec($curl);
+        //print_r($response);die('heh');
         $err = curl_error($curl);
 
         curl_close($curl);

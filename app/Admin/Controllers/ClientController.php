@@ -274,7 +274,7 @@ class ClientController extends Controller
             $row->width(6)->text('region', 'Region');
             $row->width(6)->text('district', 'District');
             $row->width(6)->text('ward', 'Ward');
-            $row->width(6)->text('zipcode', 'Zipcode');
+            $row->width(6)->text('zipcode', 'Zipcode')->attribute(['maxlength'=>8]);
 
         },$form);
 
@@ -283,7 +283,7 @@ class ClientController extends Controller
             $row->width(12)->html(
                 "<div class='box-header with-border'><h3 class='box-title text-upper box-header'>REGISTRATION INFORMATION</h3></div>"
             );
-            $row->width(6)->text('registration_number', 'Registration Number');
+            $row->width(6)->text('registration_number', 'Registration Number')->attribute(['maxlength'=>20]);
             $row->width(6)->date('registration_date', 'Registration Date');
         },$form);
 
@@ -326,7 +326,11 @@ class ClientController extends Controller
 
     public function autocomplete(Request $request)
     {
-        $q = $request->get('q');
-        return Client::where('name', 'like', "%$q%")->orWhere('phone', 'like', "%$q%")->paginate(null, ['id', 'name as text']);
+         $q= $request->get('q');
+         if(!empty($q)){
+            return Client::where('name', 'like', "%$q%")->orWhere('phone', 'like', "%$q%")->paginate(null, ['id', 'name as text']);
+        }else{
+            return Client::all()->paginate(null, ['id', 'name as text']);
+        }
     }
 }

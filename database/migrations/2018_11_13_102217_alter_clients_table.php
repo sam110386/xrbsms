@@ -16,7 +16,7 @@ class AlterClientsTable extends Migration
         Schema::table('clients', function (Blueprint $table) {
             $table->dropColumn('location');
 
-            $table->string('registration_number',10)->nullable()->after('registration_date');
+            $table->string('registration_number',20)->nullable()->after('registration_date');
             $table->string('address')->nullable()->after('registration_number');
             $table->string('region')->nullable()->after('address');
             $table->string('district')->nullable()->after('region');

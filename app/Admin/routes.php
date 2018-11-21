@@ -29,6 +29,8 @@ Route::group([
     $router->get('/sms', 'SmsController@index')->name('Sms.index');
     $router->get('/sms/new', 'SmsController@new')->name('Sms.new');
     $router->post('/sms/send', 'SmsController@send')->name('Sms.send');
+    $router->get('/sms/bulk', 'SmsController@bulk')->name('Sms.bulk');
+    $router->match(['get','put', 'patch','post'],'/sms/loadclients', 'SmsController@loadclients')->name('Sms.loadclients');
     //Sms Logs
     $router->get('/smslogs', 'SmslogsController@index')->name('Smslogs.index');
     $router->get('/smslogs/index', 'SmslogsController@index')->name('Smslogs.index1');
