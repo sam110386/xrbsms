@@ -12,6 +12,8 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Models\Smsapisetting;
+use Encore\Admin\Widgets\Tab;
 
 class GeneralSettingsController extends Controller
 {
@@ -49,14 +51,18 @@ class GeneralSettingsController extends Controller
      * @return Content
      */
     public function edit(Content $content)
-    {
+    {   $tab = new Tab();
+        
+        $tab->add("General Setting", $this->generalform()->edit(1)->render());
+        $tab->add('SMS API', $this->smsapiform()->edit(1)->render());
         return $content
-            ->header(trans('General Settings'))
-            ->description(trans('Edit General Settings'))
-            ->body($this->form()->edit(1));
+            ->header('Settings')
+            ->description('..')
+            ->body($tab);
+        
     }   
 
-    public function form($action = null)
+    public function generalform($action = null)
     {
 
         $settings = config('admin.database.generalsettings_model');
@@ -159,6 +165,40 @@ class GeneralSettingsController extends Controller
             
         });
 
+        return $form;
+    }
+
+    /**SMS API SETTING FORM**/
+    protected function smsapiform()
+    {
+       
+        $form = new Form(new Smsapisetting());
+        $form->hidden('id','');
+        $form->text('username', trans('API Username'))->rules('required');
+        $form->password('passowrd', trans('API Password'))->rules('required');
+        $form->text('from', trans('API From'))->rules('required');
+        $form->url('apiurl', trans('API HTTTP URL'))->rules('required');
+        $form->setAction('/admin/setting/smsapiformsave');
+        $form->footer(function ($footer) {
+            // disable reset btn
+            $footer->disableReset();
+            // disable `View` checkbox
+            $footer->disableViewCheck();
+            // disable `Continue editing` checkbox
+            $footer->disableEditingCheck();
+            // disable `Continue Creating` checkbox
+            $footer->disableCreatingCheck();
+
+        });
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableList();
+            $tools->disableView();
+            $tools->disableDelete();
+        });        
+            $form->saved(function () {
+                admin_toastr(trans('admin.update_succeeded'));
+                return redirect(admin_base_path('/setting/smsapiform'));
+            });
         return $form;
     }
 }

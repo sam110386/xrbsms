@@ -1,3 +1,6 @@
+<style type="text/css">
+	.duedate{margin: 27px 0;}
+</style>
 <div class="row">
 	<div class="col-md-12">
 		<div class="box box-info">
@@ -93,6 +96,26 @@
 									</div>
 								</div>
 							</div>
+							
+							<div class="col-md-12">
+								<div class="">
+
+									<label for="taxcategory" class=" pull-left control-label">TAX Category</label>
+
+									<div class="col-md-4">
+										<select class="form-control taxcategory" style="width: 100%;" name="taxcategory" data-value="" >
+											<option value=""></option>
+											<option value="Returns" >Returns</option>
+											<option value="Motor Vehicle">Motor vehicle</option>
+											<option value="Driving Licence">Driving Licence</option>
+										</select>
+
+
+									</div>
+								</div>
+							</div>
+						
+
 							<div class="col-md-6">
 								<div class=" ">
 
@@ -108,8 +131,8 @@
 
 									</div>
 								</div>
-
 							</div>
+
 							<div class="col-md-6">
 								<div class=" ">
 
@@ -175,23 +198,19 @@
 
 							</div>
 							<div class="col-md-6">
-								<div class=" ">
-
-									<label for="due_date" class=" control-label">Due (Expiration)</label>
-
-									<div class="">
-
-
+								<div class="duedate">
+									<label for="due_date" class=" col-md-3 control-label">Due (Expiration)</label>
+									<div class="col-md-3">
 										<div class="input-group">
-
 											<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-
-											<input style="width: 110px" type="text" id="due_date" name="due_date" value="" class="form-control due_date reloadclient" placeholder="Input Due (Expiration)" />
-
-
+											<input style="width: 110px" type="text" id="due_from" name="due_from" value="" class="form-control due_from reloadclient" placeholder=" Due From" />
 										</div>
-
-
+									</div>
+									<div class="col-md-3">
+										<div class="input-group ">
+											<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
+											<input style="width: 110px" type="text" id="due_to" name="due_to" value="" class="form-control due_to reloadclient" placeholder=" Due To" />
+										</div>
 									</div>
 								</div>
 							</div>
@@ -203,11 +222,20 @@
 									<label for="clients" class=" control-label">Clients</label>
 
 									<div class="">
-										<select class="form-control clients" id="clients" style="width: 100%;" name="clients[]" multiple="multiple" data-placeholder="Input Clients" size="10" data-value="" >
+										<select class="form-control clients" id="clients" style="width: 100%;" name="clients[]" multiple="multiple" data-placeholder="Input Clients" size="5" data-value="" >
 										</select>
 									</div>
+									<span id="clientcount"></span>
 								</div>
 
+							</div>
+							<div class="col-md-6">
+								<div class=" ">
+									<label for="clients" class=" control-label">Message Body</label>
+									<div class="">
+										<textarea class="form-control message" id="message" style="width: 100%;" name="message" data-placeholder="Message Body" rows="4" maxlength="400"></textarea>
+									</div>
+								</div>
 							</div>
 							
 						</div>
@@ -241,30 +269,32 @@
 		</div>
 	</div>
 </div>
+
 <script type="text/javascript">
 	function loadclients(){
 
 		$.ajax({
-            url: '/admin/sms/loadclients',
-            dataType: 'json',
-            type: 'GET',
-            data: $("#sendbulkform").serialize(),
-            success: function(response) {
-              var clients = response.data;
-              if(response.status=='success'){
-              	$("#clients").find('option').remove().end();
-              }
-              if (clients != '')
+			url: '/admin/sms/loadclients',
+			dataType: 'json',
+			type: 'GET',
+			data: $("#sendbulkform").serialize(),
+			success: function(response) {
+				var clients = response.data;
+				$("#clientcount").html("This message will be send to "+response.count+" users");
+				if(response.status=='success'){
+					$("#clients").find('option').remove().end();
+				}
+				if (clients != '')
               {	//reset clients
-                $.each(clients,function(i,v){
-                	$("#clients").append("<option value="+v['id']+">"+v['name']+"</option>");
-                });                       
-                 
-               }
-              }
+              	$.each(clients,function(i,v){
+              		$("#clients").append("<option value="+v['id']+">"+v['name']+"</option>");
+              	});                       
 
-            
-        });
+              }
+          }
+
+
+      });
 	}
 	
 
@@ -288,5 +318,21 @@
 		});
 		/**load clients**/
 		loadclients();
+	});
+</script>
+<script type="text/javascript">
+	$(function () {
+		$('#due_from').datetimepicker();
+		$('#due_to').datetimepicker({
+            useCurrent: false //Important! See issue #1075
+        });
+		$("#due_from").on("dp.change", function (e) {
+			$('#due_to').data("DateTimePicker").minDate(e.date);
+			loadclients();
+		});
+		$("#due_to").on("dp.change", function (e) {
+			$('#due_from').data("DateTimePicker").maxDate(e.date);
+			loadclients();
+		});
 	});
 </script>

@@ -11,6 +11,8 @@ use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Support\MessageBag;
 use App\Models\Smsapisetting;
+use Encore\Admin\Widgets\Tab;
+
 class SettingController extends Controller
 {
     use HasResourceActions;
@@ -30,11 +32,14 @@ class SettingController extends Controller
     }
 
     public function smspisetting(Content $content)
-    {
+    {   $tab = new Tab();
+        
+        $tab->add('General Setting', $this->generalform()->edit(1)->render());
+        $tab->add('SMS API', $this->smsapiform()->edit(1)->render());
         return $content
             ->header('Settings')
-            ->description('SMS API ..')
-            ->body($this->smsapiform()->edit(1));
+            ->description('..')
+            ->body($tab);
     }
 
     public function smsapiformsave(Request $request){
@@ -47,7 +52,7 @@ class SettingController extends Controller
 
         if(Smsapisetting::findOrFail(1)->update($request->all())){
             admin_success('Success','Setting has been successfully updated!');
-            return redirect(admin_base_path('/setting/smspisetting'));
+            return back();//return redirect(admin_base_path('/setting/smspisetting'));
         }else{
             admin_error('Error','Something went wrong! Please Try Again.');
             return back();
@@ -88,6 +93,110 @@ class SettingController extends Controller
         return $form;
     }
 
+    public function generalform($action = null)
+    {
 
+        $settings = config('admin.database.generalsettings_model');
+        $form = new Form(new $settings());
+        $form->setAction('/admin/settings');
+        $form->row(function ($row) use ( $form) 
+            { 
+                $row->width(4)->select('date_format', 'Date Format')
+                ->options(
+                    [
+                        'd/m/Y'=>"d/m/Y",
+                        'm/d/Y'=>"m/d/Y",
+                        'Y/m/d'=>"Y/m/d",
+                        'Y/d/m'=>"Y/d/m",
+                        'd-m-Y'=>"d-m-Y",
+                        'm-d-Y'=>"m-d-Y",
+                        'Y-m-d'=>"Y-m-d",
+                        'Y-d-m'=>"Y-d-m"
+                    ]
+                );
+                $row->width(4)
+                ->select('time_from', 'Time From')
+                ->options(
+                    [
+                        '01'=>"01 AM",                
+                        '02'=>"02 AM",                
+                        '03'=>"03 AM",                
+                        '04'=>"04 AM",                
+                        '05'=>"05 AM",                
+                        '06'=>"06 AM",                
+                        '07'=>"07 AM",                
+                        '08'=>"08 AM",                
+                        '09'=>"09 AM",                
+                        '10'=>"10 AM",
+                        '11'=>"11 AM",                
+                        '12'=>"12 AM",                
+                        '13'=>"01 PM",                
+                        '14'=>"02 PM",                
+                        '15'=>"03 PM",                
+                        '16'=>"04 PM",                
+                        '17'=>"05 PM",                
+                        '18'=>"06 PM",                
+                        '19'=>"07 PM",                
+                        '20'=>"08 PM",                
+                        '21'=>"09 PM",                
+                        '22'=>"10 PM",                
+                        '23'=>"11 PM",
+                        '24'=>"12 PM",
+
+                    ]
+                );
+
+                $row->width(4)
+                ->select('time_to', 'Time To')
+                ->options(
+                    [
+                        '01'=>"01 AM",                
+                        '02'=>"02 AM",                
+                        '03'=>"03 AM",                
+                        '04'=>"04 AM",                
+                        '05'=>"05 AM",                
+                        '06'=>"06 AM",                
+                        '07'=>"07 AM",                
+                        '08'=>"08 AM",                
+                        '09'=>"09 AM",                
+                        '10'=>"10 AM",
+                        '11'=>"11 AM",                
+                        '12'=>"12 AM",                
+                        '13'=>"01 PM",                
+                        '14'=>"02 PM",                
+                        '15'=>"03 PM",                
+                        '16'=>"04 PM",                
+                        '17'=>"05 PM",                
+                        '18'=>"06 PM",                
+                        '19'=>"07 PM",                
+                        '20'=>"08 PM",                
+                        '21'=>"09 PM",                
+                        '22'=>"10 PM",                
+                        '23'=>"11 PM",
+                        '24'=>"12 PM",
+
+                    ]
+                );
+            },  $form);
+        $form->footer(function ($footer) {
+            // disable `View` checkbox
+            $footer->disableViewCheck();
+            // disable `Continue editing` checkbox
+            $footer->disableEditingCheck();
+            // disable `Continue Creating` checkbox
+            $footer->disableCreatingCheck();
+
+        });
+        $form->tools(function (Form\Tools $tools) {
+            $tools->disableList();
+            $tools->disableView();
+            $tools->disableDelete();
+        });
+        $form->saving(function (Form $form) {
+            
+        });
+
+        return $form;
+    }
     
 }

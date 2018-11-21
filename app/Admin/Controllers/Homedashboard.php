@@ -38,7 +38,7 @@ class Homedashboard
         $extensions = [
             'helpers' => [
                 'name' => 'Setting',
-                'link' => '/admin/setting/smspisetting',
+                'link' => '/admin/settings',
                 'icon' => 'gears',
             ],
             'log-viewer' => [
@@ -53,7 +53,7 @@ class Homedashboard
             ],
             'config' => [
                 'name' => 'Bulk SMS',
-                'link' => '/admin/sms/new',
+                'link' => '/admin/sms/bulk',
                 'icon' => 'bulk',
             ],
             'api-tester' => [
@@ -79,7 +79,7 @@ class Homedashboard
                 ],
                 'config' => [
                     'name' => 'Bulk SMS',
-                    'link' => '/admin/sms/new',
+                    'link' => '/admin/sms/bulk',
                     'icon' => 'envelope',
                 ],
                 

@@ -227,7 +227,7 @@ class SmsscheduleController extends Controller
         $form->text('username', 'API Username')->rules('required');
         $form->text('password', 'API Password')->rules('required');
         $form->url('apiurl', 'API URL')->rules('required');
-        $form->text('en_smsbody', 'SMS Template')->rules('required');
+        $form->textarea('en_smsbody', 'SMS Template')->rules('required')->attribute(['maxlength'=>400]);
         $form->select('frequency', 'Frequency')->options(array('1'=>"Daily",'5'=>"5 Days Before",'10'=>'10 Days Before','15'=>'15 Days Before','30'=>'30 Days Before','60'=>'60 Days Before'));
         $form->select('status', 'Status')->options(array('0'=>"Inactive",'1'=>"Active"));
         //$form->display('created_at', trans('admin.created_at'));

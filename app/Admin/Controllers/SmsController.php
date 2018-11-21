@@ -169,7 +169,7 @@ class SmsController extends Controller
         $form = new Form(new $smslogModel());
         $form->mobile('phones', trans('Mobile Number'))->options(['mask' => '999 999 9999']);
         $form->multipleSelect('clients', trans('Search Client'))->options($clientModel, 'name', 'id')->ajax('/admin/clients/autocomplete');//->options($clientModel::all()->pluck('name', 'id'));
-        $form->textarea('message', trans('Message'))->rules('required');
+        $form->textarea('message', trans('Message'))->rules('required')->attribute(['maxlength'=>400]);
         $form->setAction('/admin/sms/send');
         $form->footer(function ($footer) {
             // disable reset btn
@@ -345,11 +345,15 @@ SCRIPT;
         if(!empty($filling_currency)){
             $clients->where('filling_currency', $filling_currency);
         }
-        $due_date= $request->get('due_date');
-        if(!empty($due_date)){
-            $clients->where('due_date', $due_date);
+        $due_from= $request->get('due_from');
+        if(!empty($due_from)){
+            $clients->where('due_date','>=', $due_from);
         }
-        return response()->json(array('status'=>'success','data'=>$clients->get()));
+        $due_to= $request->get('due_to');
+        if(!empty($due_to)){
+            $clients->where('due_date','<=', $due_to);
+        }
+        return response()->json(array('status'=>'success','data'=>$clients->get(),'count'=>$clients->get()->count()));
     }
 
      public function sendbulk(Request $request)
@@ -358,7 +362,7 @@ SCRIPT;
         $valid = request()->validate([
             'message' => 'required'
         ]);
-        
+        /*
         $clients=$request->input('clients');
         if(is_array($clients)){
             $clients=array_filter($clients);
@@ -384,7 +388,7 @@ SCRIPT;
                     $smslogModel->sendAndLogSms(array('client_id'=>$ClientData->id,'phone'=>$ClientData->phone,'message'=>$request->input('message')));
                 }
             }
-        }
+        }*/
         admin_success('','Sms sent successfully');
         return redirect()->back();
     }
