@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Admin\Controllers;
-
+use Encore\Admin\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -163,13 +163,24 @@ class SmsController extends Controller
      */
     protected function form()
     {
-        
+        $script = <<<SCRIPT
+                    $(document).on("keyup focus", "#messagebody",function(src) {
+                        var chars = this.value.length; var limit=160;
+                        if (chars > limit) {
+                            this.value = this.value.substr(0, limit);
+                            chars = limit;
+                        }
+                        $("#charleft").html( limit - chars +" characters left ");
+                    });
+SCRIPT;
+
+        Admin::script($script);
         $smslogModel = config('admin.database.smslog_model');
         $clientModel = config('admin.database.client_model');
         $form = new Form(new $smslogModel());
         $form->mobile('phones', trans('Mobile Number'))->options(['mask' => '999 999 9999']);
         $form->multipleSelect('clients', trans('Search Client'))->options($clientModel, 'name', 'id')->ajax('/admin/clients/autocomplete');//->options($clientModel::all()->pluck('name', 'id'));
-        $form->textarea('message', trans('Message'))->rules('required')->attribute(['maxlength'=>400]);
+        $form->textarea('message', trans('Message'))->rules('required')->attribute(['id'=>"messagebody",'maxlength'=>160]);
         $form->setAction('/admin/sms/send');
         $form->footer(function ($footer) {
             // disable reset btn
@@ -225,12 +236,6 @@ class SmsController extends Controller
     {
         $clientModel = config('admin.database.client_model');
         $form = new Form(new $clientModel());
-        /*$script = <<<SCRIPT
-            $(".messagetype:").on('click', function (event) {
-                alert('here');
-            });
-SCRIPT;
-            Admin::script($script);*/
 
         if($action) $form->setAction($action);
         

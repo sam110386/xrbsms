@@ -322,8 +322,9 @@
 </script>
 <script type="text/javascript">
 	$(function () {
-		$('#due_from').datetimepicker();
+		$('#due_from').datetimepicker({format: 'L'});
 		$('#due_to').datetimepicker({
+			format: 'L',
             useCurrent: false //Important! See issue #1075
         });
 		$("#due_from").on("dp.change", function (e) {
