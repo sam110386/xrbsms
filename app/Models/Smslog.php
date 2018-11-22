@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Smsapisetting;
 class Smslog extends Model
 {
-    protected $fillable = [
-        'id',
-        'phone',
-        'message',
-        'client_id',
-        'type',
-        'status',
-        'slug'
-    ];
+  protected $fillable = [
+    'id',
+    'phone',
+    'message',
+    'client_id',
+    'type',
+    'status',
+    'slug'
+  ];
 
     /**
      * Create a new Eloquent model instance.
@@ -24,13 +24,13 @@ class Smslog extends Model
      */
     public function __construct(array $attributes = [])
     {
-        $connection = config('admin.database.connection') ?: config('database.default');
+      $connection = config('admin.database.connection') ?: config('database.default');
 
-        $this->setConnection($connection);
+      $this->setConnection($connection);
 
-        $this->setTable(config('admin.database.smslog_table'));
+      $this->setTable(config('admin.database.smslog_table'));
 
-        parent::__construct($attributes);
+      parent::__construct($attributes);
     }
 
     
@@ -45,7 +45,7 @@ class Smslog extends Model
      */
     public function can(string $permission) : bool
     {
-        return $this->permissions()->where('slug', $permission)->exists();
+      return $this->permissions()->where('slug', $permission)->exists();
     }
 
     /**
@@ -57,7 +57,7 @@ class Smslog extends Model
      */
     public function cannot(string $permission) : bool
     {
-        return !$this->can($permission);
+      return !$this->can($permission);
     }
 
     /**
@@ -67,24 +67,44 @@ class Smslog extends Model
      */
     protected static function boot()
     {
-        parent::boot();
+      parent::boot();
 
-        static::deleting(function ($model) {});
+      static::deleting(function ($model) {});
     }
 
     /***send SMS API**/
     public function sendAndLogSms(array $data = []){
-        
-        $phone=$data['phone'];
-        $phone="+255".substr(preg_replace("/[^0-9]/", "",$phone),-9);
-        $msg=$data['message'];
-        $dataToSave=array("phone"=>$phone,'message'=>$msg);
-        if(isset($data['client_id']) && !empty($data['client_id'])){
-            $dataToSave['client_id']=$data['client_id'];
+
+      $clientModel = config('admin.database.client_model');
+      $phone=$data['phone'];
+      $phone="+255".substr(preg_replace("/[^0-9]/", "",$phone),-9);
+      $msg=$data['message'];
+      $dataToSave['phone']=$phone;
+
+      if(isset($data['client_id']) && !empty($data['client_id'])){
+        $dataToSave['client_id']=$data['client_id'];
+        $sms_variables = config('admin.sms_variables');
+        $ClientData=$clientModel::find($data['client_id']);
+        foreach ($sms_variables as $k => $v) {
+          if($ClientData->$v){
+            $replacedValue = $ClientData->$v; 
+          }else{
+            $replacedValue = ""; 
+          }
+          $msg =  str_replace($k, $replacedValue,$msg );
         }
-        if(isset($data['type']) && !empty($data['type'])){
-            $dataToSave['type']=$data['type'];
+      }else{
+        foreach ($sms_variables as $k => $v) {
+          $msg =  str_replace($k,"",$msg );
         }
+      }
+      if(isset($data['type']) && !empty($data['type'])){
+        $dataToSave['type']=$data['type'];
+      }
+      
+      $dataToSave['message'] = $msg;
+
+
 
 
         // SEND SMS START
@@ -128,7 +148,7 @@ class Smslog extends Model
         // SEND SMS EMD
 
         self::create($dataToSave);
-        return;
-    }
+        return $dataToSave;
+      }
 
-}
+    }

@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-
+use Encore\Admin\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Smsscheduletype;
@@ -217,8 +217,31 @@ class SmsscheduleController extends Controller
     public function form($action = null)
     {
     
+        $script = <<<SCRIPT
+                    $(document).on("keyup focus", "#en_smsbody",function(src) {
+                        var chars = this.value.length;
+                        var s = (chars>1) ? "s" : "";
+                        $("#charleft").html( chars +" character" + s + ".");
+                    });
+SCRIPT;
+
+        Admin::script($script);
+        $sms_variables = config('admin.sms_variables');
+        $sms_variables = (!empty($sms_variables)) ? implode(" ",array_keys($sms_variables)) : "" ;
         $form = new Form(new Smsscheduletype());
-        
+        $form->html('<div class="modal fade" id="smsVariables" data-controls-modal="smsVariables" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="smsVariables">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button id="cancelSmallBtn" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myActionTitle">SMS Variables</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="h4">'.$sms_variables.'</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>');
         if($action) $form->setAction($action);
         
         $form->hidden('id');
@@ -227,7 +250,7 @@ class SmsscheduleController extends Controller
         $form->text('username', 'API Username')->rules('required');
         $form->text('password', 'API Password')->rules('required');
         $form->url('apiurl', 'API URL')->rules('required');
-        $form->textarea('en_smsbody', 'SMS Template')->rules('required')->attribute(['maxlength'=>400]);
+        $form->textarea('en_smsbody', 'SMS Template')->rules('required')->attribute(['id'=>'en_smsbody']);
         $form->select('frequency', 'Frequency')->options(array('1'=>"Daily",'5'=>"5 Days Before",'10'=>'10 Days Before','15'=>'15 Days Before','30'=>'30 Days Before','60'=>'60 Days Before'));
         $form->select('status', 'Status')->options(array('0'=>"Inactive",'1'=>"Active"));
         //$form->display('created_at', trans('admin.created_at'));
@@ -244,6 +267,13 @@ class SmsscheduleController extends Controller
 
         });
         
+        $form->tools(function (Form\Tools $tools) {
+            $tools->add('<div class="btn-group pull-right" style="margin-right: 5px">
+                            <a data-toggle="modal" data-target="#smsVariables" href="#" class="btn btn-sm btn-info sms-variables" title="SMS Variables"><i class="fa fa-list"></i><span class="hidden-xs">&nbsp;SMS Variables</span></a>
+                        </div>'
+                    );
+        });
+
         $form->saving(function (Form $form) {
             
         });

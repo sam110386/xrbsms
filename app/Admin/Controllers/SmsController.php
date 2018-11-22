@@ -165,22 +165,37 @@ class SmsController extends Controller
     {
         $script = <<<SCRIPT
                     $(document).on("keyup focus", "#messagebody",function(src) {
-                        var chars = this.value.length; var limit=160;
-                        if (chars > limit) {
-                            this.value = this.value.substr(0, limit);
-                            chars = limit;
-                        }
-                        $("#charleft").html( limit - chars +" characters left ");
+                        var chars = this.value.length;
+                        var s = (chars>1) ? "s" : "";
+                        $("#charleft").html( chars +" character" + s + ".");
                     });
 SCRIPT;
 
         Admin::script($script);
         $smslogModel = config('admin.database.smslog_model');
         $clientModel = config('admin.database.client_model');
+
+        $sms_variables = config('admin.sms_variables');
+        $sms_variables = (!empty($sms_variables)) ? implode(" ",array_keys($sms_variables)) : "" ;
+
         $form = new Form(new $smslogModel());
+
+        $form->html('<div class="modal fade" id="smsVariables" data-controls-modal="smsVariables" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="smsVariables">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button id="cancelSmallBtn" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myActionTitle">SMS Variables</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="h4">'.$sms_variables.'</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>');        
         $form->mobile('phones', trans('Mobile Number'))->options(['mask' => '999 999 9999']);
         $form->multipleSelect('clients', trans('Search Client'))->options($clientModel, 'name', 'id')->ajax('/admin/clients/autocomplete');//->options($clientModel::all()->pluck('name', 'id'));
-        $form->textarea('message', trans('Message'))->rules('required')->attribute(['id'=>"messagebody",'maxlength'=>160]);
+        $form->textarea('message', trans('Message'))->rules('required')->attribute(['id'=>"messagebody"]);
         $form->setAction('/admin/sms/send');
         $form->footer(function ($footer) {
             // disable reset btn
@@ -193,7 +208,13 @@ SCRIPT;
             $footer->disableCreatingCheck();
 
         });
-        
+
+        $form->tools(function (Form\Tools $tools) {
+            $tools->add('<div class="btn-group pull-right" style="margin-right: 5px">
+                            <a data-toggle="modal" data-target="#smsVariables" href="#" class="btn btn-sm btn-info sms-variables" title="SMS Variables"><i class="fa fa-list"></i><span class="hidden-xs">&nbsp;SMS Variables</span></a>
+                        </div>'
+                    );
+        });        
             $form->saving(function ($form) {
                 if (empty($form->phones) && empty($form->clients)) {
                     $error = new MessageBag([
@@ -219,11 +240,12 @@ SCRIPT;
      */
     public function bulk(Content $content)
     {   
-
+        $sms_variables = config('admin.sms_variables');
+        $sms_variables = (!empty($sms_variables)) ? implode(" ",array_keys($sms_variables)) : "" ;
         return $content
             ->header('SMS')
             ->description('Send Bulk SMS')
-            ->body(view('Sms.bulk'));
+            ->body(view('Sms.bulk',compact('sms_variables')));
     }
     
     /**
@@ -358,43 +380,44 @@ SCRIPT;
         if(!empty($due_to)){
             $clients->where('due_date','<=', $due_to);
         }
+        $taxcategory =  $request->get('taxcategory');
+        if(!empty($taxcategory)){
+            $clients->where('taxcategory', $taxcategory);
+        }
         return response()->json(array('status'=>'success','data'=>$clients->get(),'count'=>$clients->get()->count()));
     }
 
      public function sendbulk(Request $request)
     {   
         
-        $valid = request()->validate([
-            'message' => 'required'
-        ]);
-        /*
+        
         $clients=$request->input('clients');
         if(is_array($clients)){
             $clients=array_filter($clients);
         }
-        if (empty($request->input('phones')) && empty($clients)) {
-            admin_error('','Please enter phone# or select client');
+        if (empty($clients)) {
+            admin_error('','Please select client');
+            return back()->with(['message'=>$request->input('message')]);
+        }
+
+        $message=$request->input('message');
+        if (empty($message)) {
+            admin_error('','Please enter message');
             return back();
         }
-        
+
+
         $smslogModel = config('admin.database.smslog_model');
         $smslogModel=new $smslogModel();
-        if(!empty($request->input('phones'))){
-            $phones=$request->input('phones');
-            $phones=explode(',',$phones);
-            foreach($phones as $phone){
-                $smslogModel->sendAndLogSms(array('phone'=>$phone,'message'=>$request->input('message')));
+        $clientModel = config('admin.database.client_model');
+        foreach($clients as $client){
+            $ClientData=$clientModel::find($client);
+            if(!empty($ClientData) && $ClientData->phone){
+                $msgs[] = $smslogModel->sendAndLogSms(array('client_id'=>$ClientData->id,'phone'=>$ClientData->phone,'message'=>$request->input('message')));
             }
-        }else{
-            $clientModel = config('admin.database.client_model');
-            foreach($clients as $client){
-                $ClientData=$clientModel::find($client);
-                if(!empty($ClientData) && $ClientData->phone){
-                    $smslogModel->sendAndLogSms(array('client_id'=>$ClientData->id,'phone'=>$ClientData->phone,'message'=>$request->input('message')));
-                }
-            }
-        }*/
-        admin_success('','Sms sent successfully');
+        }
+        
+        admin_success('','Sms sent successfully ');
         return redirect()->back();
     }
 }

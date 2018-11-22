@@ -331,5 +331,6 @@ return [
         '2'=>'Motor Vehicle Remainder',
         '3'=>'Driving Licence Remainder',
         '4'=>'Revenue and Payment Remainder',
-    ]
+    ],
+    'sms_variables' => ["{NAME}" => 'name',"{EXPIRATIONDATE}" => 'due_date']
 ];

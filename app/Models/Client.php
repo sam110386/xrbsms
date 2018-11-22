@@ -23,6 +23,7 @@ class Client extends Model
         'zipcode',
         'exempt',
         'tax_type',
+        'taxcategory',
         'filling_type',
         'filling_period',
         'filling_currency',

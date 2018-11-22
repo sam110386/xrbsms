@@ -294,10 +294,11 @@ class ClientController extends Controller
             );
             $row->width(6)->select('exempt', 'Exempt')->options(array(1=>"Yes",0 => 'No'));
             $row->width(6)->select('tax_type', 'Tax Type')->options(array('VAT'=>"VAT",'non-VAT' => 'non-VAT'));
+            $row->width(6)->select('taxcategory', 'Tax Category')->options(array('Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence'));
+            $row->width(6)->date('due_date', 'Due (Expiration)');
             $row->width(6)->select('filling_type', 'Filling Type')->options(array('regular'=>"Regular",'lamp-sum' => 'Lamp sum'));
             $row->width(6)->select('filling_period', 'Filling Period')->options(array('annual'=>"Annual",'quarterly' => 'Quarterly'));
             $row->width(6)->select('filling_currency', 'Filling Currency')->options(array('TSH'=>"TSH",'USD' => 'USD'));
-            $row->width(6)->date('due_date', 'Due (Expiration)');
             $row->width(6)->text('total_amount', 'Total amount');
             $row->width(6)->text('penalty_amount', 'Penalty Amount');
         },$form);

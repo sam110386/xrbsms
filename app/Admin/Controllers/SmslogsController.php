@@ -91,11 +91,15 @@ class SmslogsController extends Controller
     protected function detail($id)
     {
         
-        $show = new Show(Smslog::findOrFail($id));
-
+        $sms = Smslog::findOrFail($id);
+        $show = new Show($sms);
         $show->id('ID');
         $show->phone(trans('Phone'));
         $show->message(trans('Message Body'));
+
+        $show->display(trans('Message Characters'))->as(function() use($sms){
+            return strlen($sms->message);
+        });
         $show->created_at(trans('Time Stamp'))->as(function($date){
             return CommonMethod::formatDateWithTime($date);
         });

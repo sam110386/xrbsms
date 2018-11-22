@@ -1,10 +1,10 @@
 <style type="text/css">
-	.duedate{margin: 27px 0;}
+.duedate{margin: 27px 0;}
 </style>
 <div class="row">
 	<div class="col-md-12">
 		<div class="box box-info">
-			<form action="sms/sendbulk" method="post" accept-charset="UTF-8" id="sendbulkform" class="form-horizontal" pjax-container >
+			<form action="/admin/sms/sendbulk" method="post" accept-charset="UTF-8" id="sendbulkform" class="form-horizontal" pjax-container >
 				<input type="hidden" name="_method" value="POST">
 				<div class="box-body">
 
@@ -19,6 +19,9 @@
 								<label class="radio-inline">
 									<input type="radio" name="messagetype" value="taxtype" class="minimal messagetype"  class="inline" />&nbsp;Tax Basis&nbsp;&nbsp;
 								</label>
+								<div class="btn-group pull-right" style="margin-right: 5px">
+									<a data-toggle="modal" data-target="#bulkSmsVariables" href="#" class="btn btn-sm btn-info sms-variables" title="SMS Variables"><i class="fa fa-list"></i><span class="hidden-xs">&nbsp;SMS Variables</span></a>
+								</div>
 							</div>
 						</div>
 						<div class="row">
@@ -103,7 +106,7 @@
 									<label for="taxcategory" class=" pull-left control-label">TAX Category</label>
 
 									<div class="col-md-4">
-										<select class="form-control taxcategory" style="width: 100%;" name="taxcategory" data-value="" >
+										<select class="form-control taxcategory reloadclient" style="width: 100%;" name="taxcategory" data-value="" >
 											<option value=""></option>
 											<option value="Returns" >Returns</option>
 											<option value="Motor Vehicle">Motor vehicle</option>
@@ -114,7 +117,7 @@
 									</div>
 								</div>
 							</div>
-						
+
 
 							<div class="col-md-6">
 								<div class=" ">
@@ -233,7 +236,8 @@
 								<div class=" ">
 									<label for="clients" class=" control-label">Message Body</label>
 									<div class="">
-										<textarea class="form-control message" id="message" style="width: 100%;" name="message" data-placeholder="Message Body" rows="4" maxlength="400"></textarea>
+										<textarea class="form-control message" id="message" style="width: 100%;" name="message" data-placeholder="Message Body" rows="4">{{Session::get('message')}}</textarea>
+										<span id="charleft"></span>
 									</div>
 								</div>
 							</div>
@@ -269,7 +273,19 @@
 		</div>
 	</div>
 </div>
-
+<div class="modal fade" id="bulkSmsVariables" data-controls-modal="bulkSmsVariables" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="bulkSmsVariables">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button id="cancelSmallBtn" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myActionTitle">SMS Variables</h4>
+			</div>
+			<div class="modal-body">
+				<p class="h4">{{$sms_variables}}</p>
+			</div>
+		</div>
+	</div>
+</div>
 <script type="text/javascript">
 	function loadclients(){
 
@@ -297,8 +313,13 @@
       });
 	}
 	
-
+	$(document).on("keyup focus", "#message",function(src) {
+		var chars = this.value.length;
+		var s = (chars>1) ? "s" : "";
+		$("#charleft").html( chars +" character" + s + ".");
+	});
 	$(document).ready(function(){
+
 		$("#user_type").change(function(){
 			if($(this).val()==2){
 				$("#genderwrapper").hide();
