@@ -108,12 +108,10 @@
 									<div class="col-md-4">
 										<select class="form-control taxcategory reloadclient" style="width: 100%;" name="taxcategory" data-value="" >
 											<option value=""></option>
-											<option value="Returns" >Returns</option>
-											<option value="Motor Vehicle">Motor vehicle</option>
-											<option value="Driving Licence">Driving Licence</option>
+											<option value="returns_opt" >Returns</option>
+											<option value="motor_vehicle_opt">Motor vehicle</option>
+											<option value="driving_licence_opt">Driving Licence</option>
 										</select>
-
-
 									</div>
 								</div>
 							</div>
@@ -344,9 +342,9 @@
 </script>
 <script type="text/javascript">
 	$(function () {
-		$('#due_from').datetimepicker({format: 'L'});
+		$('#due_from').datetimepicker({format: 'YYYY-MM-DD'});
 		$('#due_to').datetimepicker({
-			format: 'L',
+			format: 'YYYY-MM-DD',
             useCurrent: false //Important! See issue #1075
         });
 		$("#due_from").on("dp.change", function (e) {

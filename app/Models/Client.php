@@ -31,7 +31,13 @@ class Client extends Model
         'total_amount',
         'penalty_amount',
         'certificate_printed',
-        'slug'
+        'slug',
+        'returns_opt',
+        'return_due_date',
+        'motor_vehicle_opt',
+        'motor_vehicle_due_date',
+        'driving_licence_opt',
+        'driving_licence_due_date'
     ];
 
     /**

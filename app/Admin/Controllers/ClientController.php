@@ -13,6 +13,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use App\Helpers\CommonMethod;
+use Encore\Admin\Admin;
 
 class ClientController extends Controller
 {
@@ -68,6 +69,15 @@ class ClientController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update($id,Request $request){
+        $returns_opt = ($request->returns_opt == 'on' && $request->return_due_date) ? 1 : 0;
+        $request->offsetSet('returns_opt', $returns_opt);
+
+        $motor_vehicle_opt = ($request->motor_vehicle_opt == 'on' && $request->motor_vehicle_due_date) ? 1 : 0;
+        $request->offsetSet('motor_vehicle_opt', $motor_vehicle_opt);
+
+        $driving_licence_opt = ($request->driving_licence_opt == 'on' && $request->driving_licence_due_date) ? 1 : 0;
+        $request->offsetSet('driving_licence_opt', $driving_licence_opt);
+
         $client = request()->validate([
             'name' => 'required',
             'phone' => 'required'
@@ -174,15 +184,25 @@ class ClientController extends Controller
         });
 
         // TAX INFORMATION
-        $show->taxcategory(trans('Tax Category'))->using([['Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence']]);
+        $show->return_due_date(trans('Returns Due (Expiration)'))->as(function($date){
+            return CommonMethod::formatDate($date);
+        });
+
+        $show->motor_vehicle_due_date(trans('Motor Vehicle Due (Expiration)'))->as(function($date){
+            return CommonMethod::formatDate($date);
+        });
+        $show->driving_licence_due_date(trans('Driving Licence Due (Expiration)'))->as(function($date){
+            return CommonMethod::formatDate($date);
+        });              
+        // $show->taxcategory(trans('Tax Category'))->using([['Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence']]);
+
         $show->exempt(trans('exempt'))->using([1=>"Yes",0 => 'No']);
         $show->tax_type(trans('Tax Type'))->using(['VAT'=>"VAT",'non-VAT' => 'non-VAT']);
         $show->filling_type(trans('Filling Type'))->using(['regular'=>"Regular",'lamp-sum' => 'Lamp sum']);
         $show->filling_period(trans('Filling Period'))->using(['annual'=>"Annual",'quarterly' => 'Quarterly']);
         $show->filling_currency(trans('Filling Currency'))->using(['TSH'=>"TSH",'USD' => 'USD']);
-        $show->due_date(trans('Due (Expiration)'))->as(function($date){
-            return CommonMethod::formatDateWithTime($date);
-        });
+        
+        
         $show->total_amount(trans('Total Amount'));
         $show->penalty_amount(trans('Penalty Amount'));
         
@@ -254,6 +274,49 @@ class ClientController extends Controller
 
     public function form($action = null)
     {
+        $script = <<<SCRIPT
+                    if($("#return_due_date").val() == '' ){
+                        $("#return_due_date").parents('.col-md-3').hide();
+                        $('.returns_opt').prop('checked',false);
+                    }
+                    if($("#motor_vehicle_due_date").val() == '' ){
+                        $("#motor_vehicle_due_date").parents('.col-md-3').hide();
+                        $('.motor_vehicle_opt').prop('checked',false);
+                    }
+                    if($("#driving_licence_due_date").val() == '' ){
+                        $("#driving_licence_due_date").parents('.col-md-3').hide();
+                        $('.driving_licence_opt').prop('checked',false);
+                    }
+
+                    $('input[name=returns_opt]').change(function(e){
+                        if($(this).val() != 'on'){
+                            $("#return_due_date").parents('.col-md-3').hide();
+                            $('#return_due_date').val('');
+                        }else{
+                            $("#return_due_date").parents('.col-md-3').show();
+                        }
+                    });
+                      
+                    $('input[name=motor_vehicle_opt]').change(function() {
+                        if($(this).val() != 'on'){
+                            $("#motor_vehicle_due_date").parents('.col-md-3').hide();
+                            $("#motor_vehicle_due_date").val('');
+                        }else{
+                            $("#motor_vehicle_due_date").parents('.col-md-3').show();
+                        }
+                    });
+                    $('input[name=driving_licence_opt]').change(function() {                      
+                        if($(this).val() != 'on'){
+                            $("#driving_licence_due_date").parents('.col-md-3').hide();
+                            $("#driving_licence_due_date").val('');
+                        }else{
+                            $("#driving_licence_due_date").parents('.col-md-3').show();
+                        }
+                    });
+SCRIPT;
+
+        Admin::script($script);
+
         $clientModel = config('admin.database.client_model');
         
 
@@ -297,7 +360,42 @@ class ClientController extends Controller
             $row->width(12)->html(
                 "<div class='box-header with-border'><h3 class='box-title text-upper box-header'>TAX INFORMATION</h3></div>"
             );
-            $row->width(6)->select('taxcategory', 'Tax Category')->options(array('Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence'));
+        });
+        $form->row(function ($row) use($form) {
+            $row->width(12)->html(
+                "<div class='box-header'><h5 class='box-title text-upper box-header'>Tax Category</h5></div>"
+            );
+
+            $states = [
+                'on'  => ['value' => 1, 'text' => 'Yes', 'color' => 'info'],
+                'off' => ['value' => 0, 'text' => 'No', 'color' => 'danger'],
+            ];
+
+            $row->width(2)->switch("returns_opt",'Returns')->states($states);            
+            $row->width(3)->date('return_due_date', 'Due (Expiration)');
+        });
+        $form->row(function ($row) use($form) {
+            $states = [
+                'on'  => ['value' => 1, 'text' => 'Yes', 'color' => 'info'],
+                'off' => ['value' => 0, 'text' => 'No', 'color' => 'danger'],
+            ];
+
+            $row->width(2)->switch("motor_vehicle_opt",'Motor Vehicle')->states($states);            
+            $row->width(3)->date('motor_vehicle_due_date', 'Due (Expiration)');
+        });
+        $form->row(function ($row) use($form) {
+            $states = [
+                'on'  => ['value' => 1, 'text' => 'Yes', 'color' => 'info'],
+                'off' => ['value' => 0, 'text' => 'No', 'color' => 'danger'],
+            ];
+
+            $row->width(2)->switch("driving_licence_opt",'Driving Licence')->states($states);              
+            $row->width(3)->date('driving_licence_due_date', 'Due (Expiration)');
+        });         
+        $form->row(function ($row) use($form) {
+
+            /*$row->width(6)->select('taxcategory', 'Tax Category')->options(array('Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence'));*/
+
             $row->width(6)->select('exempt', 'Exempt')->options(array(1=>"Yes",0 => 'No'));
             $row->width(6)->select('tax_type', 'Tax Type')->options(array('VAT'=>"VAT",'non-VAT' => 'non-VAT'));
             

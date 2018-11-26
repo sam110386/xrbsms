@@ -146,7 +146,7 @@ class GeneralSettingsController extends Controller
 
                     ]
                 );
-                $row->width(3)->date('return_submission_date','Return Submission Date');
+                $row->width(3)->date('return_submission_date','Return Submission Date')->format('MM-DD');
             },  $form);
         $form->footer(function ($footer) {
             // disable `View` checkbox

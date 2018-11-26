@@ -373,19 +373,31 @@ SCRIPT;
         if(!empty($filling_currency)){
             $clients->where('filling_currency', $filling_currency);
         }
-        $due_from= $request->get('due_from');
+        $taxcategory =  $request->get('taxcategory');
+        if(!empty($taxcategory)){
+            $clients->where($taxcategory, 1);
+        }
+
+        if($taxcategory == "motor_vehicle_opt"){
+            $dueColumn = "motor_vehicle_due_date";
+        }elseif($taxcategory == "driving_licence_opt"){
+            $dueColumn = "driving_licence_due_date";
+        }else{
+            $dueColumn = "return_due_date";
+        }
+
+        $due_from = $request->get('due_from');
         if(!empty($due_from)){
-            $clients->where('due_date','>=', $due_from);
+            $clients->where($dueColumn,'>=', $due_from);
         }
         $due_to= $request->get('due_to');
         if(!empty($due_to)){
-            $clients->where('due_date','<=', $due_to);
+            $clients->where($dueColumn,'<=', $due_to);
         }
-        $taxcategory =  $request->get('taxcategory');
-        if(!empty($taxcategory)){
-            $clients->where('taxcategory', $taxcategory);
-        }
-        return response()->json(array('status'=>'success','data'=>$clients->get(),'count'=>$clients->get()->count()));
+
+        // DB::enableQueryLog();
+        // $sql = DB::getQueryLog()
+        return response()->json(array('status'=>'success','data'=>$clients->get(),'count'=>$clients->get()->count() ));
     }
 
      public function sendbulk(Request $request)
