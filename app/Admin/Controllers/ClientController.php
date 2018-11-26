@@ -19,13 +19,10 @@ class ClientController extends Controller
     
     public function index(Content $content)
     {
-        //$Clients = Client::latest()->paginate(10);
-        // return view('Clients.index',compact('Clients'))
-            //->with('i', (request()->input('page', 1) - 1) * 5);
+        
         return $content
             ->header('Clients')
             ->description('Manage clients...')
-            //->body(view('Clients.index',compact('Clients')));
             ->body($this->grid()->render());
 
     }
@@ -177,6 +174,7 @@ class ClientController extends Controller
         });
 
         // TAX INFORMATION
+        $show->taxcategory(trans('Tax Category'))->using([['Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence']]);
         $show->exempt(trans('exempt'))->using([1=>"Yes",0 => 'No']);
         $show->tax_type(trans('Tax Type'))->using(['VAT'=>"VAT",'non-VAT' => 'non-VAT']);
         $show->filling_type(trans('Filling Type'))->using(['regular'=>"Regular",'lamp-sum' => 'Lamp sum']);
@@ -195,9 +193,7 @@ class ClientController extends Controller
         $show->created_at(trans('admin.created_at'))->as(function($date){
             return CommonMethod::formatDateWithTime($date);
         });
-        /*$show->updated_at(trans('admin.updated_at'))->as(function($date){
-            return CommonMethod::formatDateWithTime($date);
-        });*/
+        
 
         return $show;
     }
@@ -226,18 +222,27 @@ class ClientController extends Controller
         $grid->created_at(trans('Created_at'))->sortable()->display(function($date){
             return CommonMethod::formatDateWithTime($date);
         });
-        $grid->updated_at(trans('Updated_at'))->sortable()->display(function($date){
-            return CommonMethod::formatDateWithTime($date);
-        });
 
-        
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             // $actions->resource = 'client/delete';
             // if ($actions->getKey() == 1) {
             //     $actions->disableDelete();
             // }
         });
-
+        $grid->filter(function($filter){
+            // Remove the default id filter
+            $filter->disableIdFilter();
+            $filter->column(1/2, function ($filter) {
+            // Add a column filter
+                $filter->like('name', 'Name');
+                $filter->like('phone', 'Phone');
+                $filter->equal('gender')->select(['m' => 'Male','F'=>'Female']);
+            });
+            $filter->column(1/2, function ($filter) {
+                $filter->equal('taxcategory', 'Tax Category')->select(['Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence']);
+                $filter->between('due_date')->datetime();
+            });
+        });
         $grid->tools(function (Grid\Tools $tools) {
             $tools->batch(function (Grid\Tools\BatchActions $actions) {
                 $actions->disableDelete();
@@ -292,9 +297,10 @@ class ClientController extends Controller
             $row->width(12)->html(
                 "<div class='box-header with-border'><h3 class='box-title text-upper box-header'>TAX INFORMATION</h3></div>"
             );
+            $row->width(6)->select('taxcategory', 'Tax Category')->options(array('Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence'));
             $row->width(6)->select('exempt', 'Exempt')->options(array(1=>"Yes",0 => 'No'));
             $row->width(6)->select('tax_type', 'Tax Type')->options(array('VAT'=>"VAT",'non-VAT' => 'non-VAT'));
-            $row->width(6)->select('taxcategory', 'Tax Category')->options(array('Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence'));
+            
             $row->width(6)->date('due_date', 'Due (Expiration)');
             $row->width(6)->select('filling_type', 'Filling Type')->options(array('regular'=>"Regular",'lamp-sum' => 'Lamp sum'));
             $row->width(6)->select('filling_period', 'Filling Period')->options(array('annual'=>"Annual",'quarterly' => 'Quarterly'));
