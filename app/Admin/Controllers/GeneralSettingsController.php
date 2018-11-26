@@ -70,7 +70,7 @@ class GeneralSettingsController extends Controller
         $form->setAction('/admin/settings');
         $form->row(function ($row) use ( $form) 
             { 
-                $row->width(4)->select('date_format', 'Date Format')
+                $row->width(3)->select('date_format', 'Date Format')
                 ->options(
                     [
                         'd/m/Y'=>"d/m/Y",
@@ -83,7 +83,7 @@ class GeneralSettingsController extends Controller
                         'Y-d-m'=>"Y-d-m"
                     ]
                 );
-                $row->width(4)
+                $row->width(3)
                 ->select('time_from', 'Time From')
                 ->options(
                     [
@@ -115,7 +115,7 @@ class GeneralSettingsController extends Controller
                     ]
                 );
 
-                $row->width(4)
+                $row->width(3)
                 ->select('time_to', 'Time To')
                 ->options(
                     [
@@ -146,6 +146,7 @@ class GeneralSettingsController extends Controller
 
                     ]
                 );
+                $row->width(3)->date('return_submission_date','Return Submission Date');
             },  $form);
         $form->footer(function ($footer) {
             // disable `View` checkbox

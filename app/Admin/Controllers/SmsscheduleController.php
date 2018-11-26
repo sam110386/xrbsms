@@ -221,7 +221,8 @@ class SmsscheduleController extends Controller
                     $(document).on("keyup focus", "#en_smsbody",function(src) {
                         var chars = this.value.length;
                         var s = (chars>1) ? "s" : "";
-                        $("#charleft").html( chars +" character" + s + ".");
+                        var smsCount = Math.ceil(chars/160);
+                        $("#charleft").html( chars +" character" + s + " / " + smsCount + " sms");
                     });
 SCRIPT;
 

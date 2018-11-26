@@ -11,6 +11,7 @@ class GeneralSetting extends Model
         'date_format',
         'time_from',
         'time_to',
+        'return_submission_date'
 
     ];
 
