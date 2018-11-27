@@ -59,7 +59,8 @@ class SmsscheduleController extends Controller
             'apiurl' => 'required',
             'title' => 'required',
             'frequency' => 'required',
-            'en_smsbody' => 'required'
+            'en_smsbody' => 'required',
+            'category' => 'required'
         ]);
         if(Smsscheduletype::create($request->all())){
             admin_success('Success','Schedule has been successfully added!');
@@ -83,7 +84,8 @@ class SmsscheduleController extends Controller
             'apiurl' => 'required',
             'title' => 'required',
             'frequency' => 'required',
-            'en_smsbody' => 'required'
+            'en_smsbody' => 'required',
+            'category' => 'required'
         ]);
         if(Smsscheduletype::findOrFail($id)->update($request->all())){
             admin_success('Success','Schedule has been successfully updated!');
@@ -253,6 +255,9 @@ SCRIPT;
         $form->url('apiurl', 'API URL')->rules('required');
         $form->textarea('en_smsbody', 'SMS Template')->rules('required')->attribute(['id'=>'en_smsbody']);
         $form->select('frequency', 'Frequency')->options(array('1'=>"Daily",'5'=>"5 Days Before",'10'=>'10 Days Before','15'=>'15 Days Before','30'=>'30 Days Before','60'=>'60 Days Before'));
+
+        $form->select('category', 'Category')->options(['return_due_date' => 'Returns','motor_vehicle_due_date' => 'Motor Vehicle' ,'driving_licence_due_date' => 'Driving Licence']);
+
         $form->select('status', 'Status')->options(array('0'=>"Inactive",'1'=>"Active"));
         //$form->display('created_at', trans('admin.created_at'));
         //$form->display('updated_at', trans('admin.updated_at'));

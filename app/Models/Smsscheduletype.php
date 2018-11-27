@@ -16,7 +16,8 @@ class Smsscheduletype extends Model
         'en_smsbody',
         'status',
         'lastrundatetime',
-        'lastrunsms'
+        'lastrunsms',
+        'category'
     ];
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Routing\Router;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,4 +15,11 @@
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::group([
+    'prefix'=> 'cron'], function (Router $router) {
+    $router->get('/clients', 'CronController@getClients');
+    $router->get('/sendsms', 'CronController@sendSms');
+
 });
