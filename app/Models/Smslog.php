@@ -80,10 +80,9 @@ class Smslog extends Model
       $phone="+255".substr(preg_replace("/[^0-9]/", "",$phone),-9);
       $msg=$data['message'];
       $dataToSave['phone']=$phone;
-
+      $sms_variables = config('admin.sms_variables');
       if(isset($data['client_id']) && !empty($data['client_id'])){
         $dataToSave['client_id']=$data['client_id'];
-        $sms_variables = config('admin.sms_variables');
         $ClientData=$clientModel::find($data['client_id']);
         foreach ($sms_variables as $k => $v) {
           if($ClientData->$v){
