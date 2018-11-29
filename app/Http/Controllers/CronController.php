@@ -57,7 +57,7 @@ class CronController extends Controller{
 				$crons = ClientSmsCron::where('sent',0)->get();
 				foreach ($crons as $cron) {
 					$sms = ['phone' => $cron->phone , 'client_id' => $cron->client_id , 'message' => $cron->message ];
-				// $smslogModel->sendAndLogSms($sms);
+					$smslogModel->sendAndLogSms($sms);
 					$cron->update(['sent' => 1]);
 					echo "<br>--> Sms Sent via cron: " . json_encode($sms);
 				}			
