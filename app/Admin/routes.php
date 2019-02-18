@@ -57,4 +57,9 @@ Route::group([
     $router->get('/settings', 'GeneralSettingsController@edit')->name('GeneralSettings.view');
     $router->match(['put', 'patch','post'],'/settings', 'GeneralSettingsController@update')->name('GeneralSettings.update');
 
+
+    // TESTING SMS RESPONSE
+    $router->get('/test/sms', 'ExampleController@testSms');
+    $router->get('/test/sms/status', 'ExampleController@testSmsStatus');
+
 });

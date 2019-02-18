@@ -125,7 +125,21 @@ class SmslogsController extends Controller
             return config('admin.smslogtypes')[$type];
         });;
         $grid->status(trans('Status'))->sortable()->display(function ($status) {
-            return $status ? 'Sent Successfully' : 'Failed';
+            $sts = 'Failed';
+            if($status==1){
+                $sts = 'Pending';
+            }elseif($status==2){
+                $sts = 'Undeliverable';
+            }elseif($status==3){
+                $sts = 'Delivered';
+            }elseif($status==4){
+                $sts = 'Expired';
+            }elseif($status==5){
+                $sts = 'Rejected';
+            }else{
+                $sts = 'Unknown';
+            }
+            return $sts;
         });
         $grid->updated_at(trans('Timestamp'))->sortable()->display(function($date){
             return CommonMethod::formatDateWithTime($date);

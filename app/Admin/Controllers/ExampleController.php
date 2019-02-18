@@ -8,6 +8,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
+use App\Models\Smsapisetting;
 
 class ExampleController extends Controller
 {
@@ -118,5 +119,93 @@ class ExampleController extends Controller
         $form->display('updated_at', 'Updated At');
 
         return $form;
+    }
+
+
+
+    public function testSms(){
+      $phone='7837837076';
+      $phone="+255".substr(preg_replace("/[^0-9]/", "",$phone),-9);
+      $msg='Please ignore this sms';        
+        // SEND SMS START
+        $smsApiConfig = Smsapisetting::find(1);
+        $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
+        $authorizationEncoded = base64_encode($authorization);
+        $baseUrl = $smsApiConfig->apiurl;
+        $from = (isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS";       
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "{$baseUrl}/sms/2/text/single",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => "{ \"from\":\"$from\", \"to\":\"$phone\", \"text\":\"$msg\" }",
+          CURLOPT_HTTPHEADER => array(
+            "accept: application/json",
+            "authorization: Basic {$authorizationEncoded}",
+            "content-type: application/json"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+        //print_r($response);die('heh');
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+          echo "cURL Error #:" . $err;
+          $dataToSave['status'] = 0;
+          $dataToSave['error'] = (is_array($err)) ? json_encode($err) : $err;
+        } else {
+            echo $response;
+          $responseArr = json_decode($response,true);
+          echo "<pre>"; print_r($responseArr); echo "</pre>"; 
+        }        
+    }
+
+
+    public function testSmsStatus(){
+        $msgId="1550495314899179574";        
+        // SEND SMS START
+        $smsApiConfig = Smsapisetting::find(1);
+        $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
+        $authorizationEncoded = base64_encode($authorization);
+        $baseUrl = $smsApiConfig->apiurl;
+        $from = (isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS";       
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "{$baseUrl}/sms/1/reports",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+          CURLOPT_POSTFIELDS => "{ \"messageId\":\"$msgId\"}",
+          CURLOPT_HTTPHEADER => array(
+            "accept: application/json",
+            "authorization: Basic {$authorizationEncoded}",
+            "content-type: application/json"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+        //print_r($response);die('heh');
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+          echo "cURL Error #:" . $err;
+        } else {
+          $responseArr = json_decode($response,true);
+          echo "<pre>"; print_r($responseArr); echo "</pre>"; 
+        }
     }
 }

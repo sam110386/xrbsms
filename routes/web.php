@@ -21,5 +21,6 @@ Route::group([
     'prefix'=> 'cron'], function (Router $router) {
     $router->get('/clients', 'CronController@getClients');
     $router->get('/sendsms', 'CronController@sendSms');
-
+    $router->get('/sms/update/status', 'CronController@checkSmsStatus');
 });
+

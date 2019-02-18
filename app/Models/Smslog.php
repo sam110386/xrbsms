@@ -14,7 +14,9 @@ class Smslog extends Model
     'client_id',
     'type',
     'status',
-    'slug'
+    'message_id',
+    'error',
+    'retry_count'
   ];
 
     /**
@@ -73,7 +75,7 @@ class Smslog extends Model
     }
 
     /***send SMS API**/
-    public function sendAndLogSms(array $data = []){
+    public function sendAndLogSms(array $data = [],$id=0){
 
       $clientModel = config('admin.database.client_model');
       $phone=$data['phone'];
@@ -102,52 +104,70 @@ class Smslog extends Model
       }
       
       $dataToSave['message'] = $msg;
-
+      $dataToSave['retry_count'] = (isset($data['retry_count'])) ? $data['retry_count'] : 0;
 
 
 
         // SEND SMS START
-        $smsApiConfig = Smsapisetting::find(1);
-        $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
-        $authorizationEncoded = base64_encode($authorization);
-        $baseUrl = $smsApiConfig->apiurl;
+      $smsApiConfig = Smsapisetting::find(1);
+      $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
+      $authorizationEncoded = base64_encode($authorization);
+      $baseUrl = $smsApiConfig->apiurl;
+      
+      if(isset($data['sender'])){
+        $from = $data['sender'];
+      }else{
         $from = (isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS";       
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "{$baseUrl}/sms/2/text/single",
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_POSTFIELDS => "{ \"from\":\"$from\", \"to\":\"$phone\", \"text\":\"$msg\" }",
-          CURLOPT_HTTPHEADER => array(
-            "accept: application/json",
-            "authorization: Basic {$authorizationEncoded}",
-            "content-type: application/json"
-          ),
-        ));
-
-        $response = curl_exec($curl);
-        //print_r($response);die('heh');
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-          //echo "cURL Error #:" . $err;
-        } else {
-          //echo $response;
-          // $res = json_decode($response,true);
-          // $res['messages'][0]['status'];
-          $dataToSave['status'] = 1;
-        }
-        // SEND SMS EMD
-
-        self::create($dataToSave);
-        return $dataToSave;
       }
 
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => "{$baseUrl}/sms/2/text/single",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => "{ \"from\":\"$from\", \"to\":\"$phone\", \"text\":\"$msg\" }",
+        CURLOPT_HTTPHEADER => array(
+          "accept: application/json",
+          "authorization: Basic {$authorizationEncoded}",
+          "content-type: application/json"
+        ),
+      ));
+
+      $response = curl_exec($curl);
+      $err = curl_error($curl);
+
+      curl_close($curl);
+
+      if ($err) {
+          // echo "cURL Error #:" . $err;
+        $dataToSave['error'] = "cURL Error #:" . $err;
+        $dataToSave['message_id'] = 'NA'; 
+        $dataToSave['status'] = 0;       
+      }else{
+        $responseArr = json_decode($response,true);
+        if(isset($responseArr['messages'][0])){
+          $responseArr = $responseArr['messages'][0];
+          $dataToSave['error'] = $responseArr['status']['description'];
+          $dataToSave['status'] = $responseArr['status']['groupId'];
+          $dataToSave['message_id'] = $responseArr['messageId'];
+        }else{
+          $dataToSave['error'] = 'Response not received';
+          $dataToSave['message_id'] = 'NA'; 
+          $dataToSave['status'] = 0;       
+        }
+      }
+      // SEND SMS EMD
+      if($id==0){
+        $sms = self::create($dataToSave);
+        $dataToSave['sms'] = $sms;
+      }else{
+        $msg = self::find($id)->update($dataToSave);
+      }
+      return $dataToSave;
     }
+  }
