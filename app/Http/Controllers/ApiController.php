@@ -10,6 +10,7 @@ class ApiController extends Controller{
 
 	protected $token;
 
+    protected $statusCodes = [1=>"PENDING" ,2=>"UNDELIVERABLE" ,3=>"DELIVERED" ,4=>"EXPIRED",5=>"REJECTED"];
     /**
      * Create a new controller instance.
      *
@@ -40,16 +41,18 @@ class ApiController extends Controller{
     		$smsRecord = $smslogModel->sendAndLogSms($sms);
     		$smsRecord = $smsRecord['sms'];
     		$smsRecord['description'] = $smsRecord['error'];
- 			unset($smsRecord['error']);
- 			unset($smsRecord['type']);
- 			unset($smsRecord['client_id']);
- 			unset($smsRecord['retry_count']);
- 			unset($smsRecord['message_id']);
- 			unset($smsRecord['created_at']);
- 			unset($smsRecord['updated_at']);
-    		$response = ['message' => $smsRecord,'error' => []];
-    	}
-    	return response()->json($response,200);
+            $smsRecord['status'] = $this->statusCodes[$smsRecord['status']];
+
+            unset($smsRecord['error']);
+            unset($smsRecord['type']);
+            unset($smsRecord['client_id']);
+            unset($smsRecord['retry_count']);
+            unset($smsRecord['message_id']);
+            unset($smsRecord['created_at']);
+            unset($smsRecord['updated_at']);
+            $response = ['message' => $smsRecord,'error' => []];
+        }
+        return response()->json($response,200);
     }
 
     public function getSmsStatus(Request $request){
@@ -65,16 +68,18 @@ class ApiController extends Controller{
     	else{
     		$sms = Smslog::find($request->messageId);
     		$sms['description'] = $sms['error'];
- 			unset($sms['error']);
- 			unset($sms['retry_count']);
- 			unset($sms['message_id']);
- 			unset($sms['client_id']);
- 			unset($sms['type']);
- 			unset($sms['created_at']);
- 			unset($sms['updated_at']);    		
-    		$response = ['message' => $sms, 'error' => []];
-    	}
-    	return response()->json($response,200);
+            // $sms['statusCode'] = $sms['status'];
+            $sms['status'] = $this->statusCodes[$sms['status']];
+            unset($sms['error']);
+            unset($sms['retry_count']);
+            unset($sms['message_id']);
+            unset($sms['client_id']);
+            unset($sms['type']);
+            unset($sms['created_at']);
+            unset($sms['updated_at']);            	
+            $response = ['message' => $sms, 'error' => []];
+        }
+        return response()->json($response,200);
     }
 }
 
