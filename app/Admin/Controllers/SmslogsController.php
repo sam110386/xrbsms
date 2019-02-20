@@ -117,7 +117,7 @@ class SmslogsController extends Controller
     {
         
         $grid = new Grid(new Smslog());
-
+        $grid->model()->orderBy('id', 'desc');
         $grid->id('ID')->sortable();
         //$grid->username(trans('admin.username'));
         $grid->phone(trans('Phone/Client'))->sortable();
