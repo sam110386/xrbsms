@@ -141,9 +141,11 @@ class SmslogsController extends Controller
             }
             return $sts;
         });
+        $grid->sender(trans('Sender'))->sortable();
         $grid->updated_at(trans('Timestamp'))->sortable()->display(function($date){
             return CommonMethod::formatDateWithTime($date);
-        });;
+        });
+
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             $actions->disableEdit();
             

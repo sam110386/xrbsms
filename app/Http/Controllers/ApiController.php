@@ -11,6 +11,7 @@ class ApiController extends Controller{
 	protected $token;
 
     protected $statusCodes = [1=>"PENDING" ,2=>"UNDELIVERABLE" ,3=>"DELIVERED" ,4=>"EXPIRED",5=>"REJECTED"];
+    private $tokens=array('ETAX'=>'EQecyxKih5vAb73pG8qdzqbN7W6p9LuU','ZRB'=>'cc27e7c0fb156b967c54f83e781bb054bd204875','HMS'=>'128daa5afcf8bb33efb51c53a93f509e48a6318a','ADM'=>'2f71695bc4ed3b76609cc0968a9fbf488877a08c');
     /**
      * Create a new controller instance.
      *
@@ -20,20 +21,32 @@ class ApiController extends Controller{
     {
     	$this->token = "EQecyxKih5vAb73pG8qdzqbN7W6p9LuU";
     }
+
     public function sendSms(Request $request){
     	$response = [];
-    	if(!$request->token)
+        $error=false;
+    	if(!$request->token):
     		$response = ['error' => 'Token missing!'];
-    	elseif($request->token != $this->token)
+            $error=true;
+        endif;
+    	if(!in_array($request->token,$this->tokens)):
     		$response = ['error' => 'Invalid Token!'];
-    	elseif(!$request->phone)
+            $error=true;
+        endif;    
+    	if(!$request->phone):
     		$response = ['error' => 'Phone Number is required!'];
-    	elseif(!$request->sender)
-    		$response = ['error' => 'Sender is required!'];
-    	elseif(!$request->message)
+            $error=true;
+        endif;    
+
+    	
+    	if(!$request->message):
     		$response = ['error' => 'Message is required!'];
-    	else{	
-    		$sms=['phone'=>$request->phone,'message' => $request->message,'sender' => $request->sender];
+            $error=true;
+        endif; 
+            
+    	if(!$error){
+            $sender=array_flip($this->tokens)[$request->token];
+    		$sms=['phone'=>$request->phone,'message' => $request->message,'sender' => $sender];
     		if($request->userid) $msg['client_id'] = $request->userid;
 
     		$smslogModel = config('admin.database.smslog_model');

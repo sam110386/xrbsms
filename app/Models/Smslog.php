@@ -16,7 +16,8 @@ class Smslog extends Model
     'status',
     'message_id',
     'error',
-    'retry_count'
+    'retry_count',
+    'sender'
   ];
 
     /**
@@ -114,11 +115,12 @@ class Smslog extends Model
       $authorizationEncoded = base64_encode($authorization);
       $baseUrl = $smsApiConfig->apiurl;
       
-      if(isset($data['sender'])){
+      if(isset($data['sender']) && !empty($data['sender'])){
         $from = $data['sender'];
       }else{
         $from = (isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS";       
       }
+      $dataToSave['sender']=$from;
 
       $curl = curl_init();
 
