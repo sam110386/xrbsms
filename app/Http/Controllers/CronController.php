@@ -38,7 +38,7 @@ class CronController extends Controller{
 		foreach ($clients as $client) {
 			$smsCronRaw = ['phone' => $client->phone, 'client_id' => $client->id, 'message' => $msg];
 			if(ClientSmsCron::create($smsCronRaw)){
-				echo "\nRecord added: " . json_encode($smsCronRaw);
+				//echo "\nRecord added: " . json_encode($smsCronRaw);
 			}
 		}
 	}
@@ -47,9 +47,9 @@ class CronController extends Controller{
 		$settings = GeneralSetting::findOrFail(1);
 		$fromTime = $settings->time_from;
 		$toTime = $settings->time_to;
-		$time = Carbon::now()->setTimezone('Asia/Calcutta')->format('H');
+		$time = Carbon::now()->setTimezone('Africa/Nairobi')->format('H');
 		if($time >= $fromTime && $time <= $toTime){
-			echo "Sending sms :)<br>";
+			
 			$smslogModel = config('admin.database.smslog_model');
 			$smslogModel= new $smslogModel();
 
@@ -58,18 +58,19 @@ class CronController extends Controller{
 				$sms = ['phone' => $cron->phone , 'client_id' => $cron->client_id , 'message' => $cron->message ];
 				$smslogModel->sendAndLogSms($sms);
 				$cron->update(['sent' => 1]);
-				echo "<br>--> Sms Sent via cron: " . json_encode($sms);
+				
 			}			
 		}else{
 			die("This is not right time to send sms ;-)");
 		}
-		echo "Cron Executed";
+		return;
 	}
 
 	public function checkSmsStatus(){
 		$msgids = Smslog::where('status',1)->get();
 		foreach($msgids as $msg){
 			$msgId = $msg->message_id;
+			if(empty($msgId)) continue;//skip if message ID is empty
 			if($msg->retry_count < 3){
 				$smsApiConfig = Smsapisetting::find(1);
 				$authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
@@ -79,14 +80,13 @@ class CronController extends Controller{
 				$curl = curl_init();
 
 				curl_setopt_array($curl, array(
-					CURLOPT_URL => "{$baseUrl}/sms/1/reports",
+					CURLOPT_URL => "{$baseUrl}/sms/1/reports?messageId=$msgId",
 					CURLOPT_RETURNTRANSFER => true,
 					CURLOPT_ENCODING => "",
 					CURLOPT_MAXREDIRS => 10,
 					CURLOPT_TIMEOUT => 30,
 					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 					CURLOPT_CUSTOMREQUEST => "GET",
-					CURLOPT_POSTFIELDS => "{ \"messageId\":\"$msgId\"}",
 					CURLOPT_HTTPHEADER => array(
 						"accept: application/json",
 						"authorization: Basic {$authorizationEncoded}",
@@ -94,13 +94,15 @@ class CronController extends Controller{
 					),
 				));
 
-				$response = curl_exec($curl);
+				echo "<br>".$response = curl_exec($curl);
 				$err = curl_error($curl);
+				
 				curl_close($curl);
+				$responseArr = json_decode($response,true);
+				echo "<pre>";print_r($responseArr);
 				if ($err) {
 					echo "<br>MessageId: {$msgId} <==> cURL Error #:" . $err;
 				} else {
-					$responseArr = json_decode($response,true);
 					if(isset($responseArr['results'][0])){
 						$responseArr = $responseArr['results'][0];
 						$msg['error'] = $responseArr['status']['description'];
@@ -110,6 +112,9 @@ class CronController extends Controller{
 						$msg->update();
 					}else{
 						echo "<br>MessageId: {$msgId} <==> Error: Response not received";
+						//forcefully done if no response recieved
+						$msg['status'] = 3;
+						$msg->update();
 					}
 				}
 			}else{
@@ -117,7 +122,7 @@ class CronController extends Controller{
 				$smslogModel= new $smslogModel();
 				$sms = ['phone' => $msg->phone , 'message' => $msg->message];
 				$smslogModel->sendAndLogSms($sms,$msg->id);
-				echo "<br>MessageId: {$msgId} <==> ID:{$msg->id} <==> Error: SMS Resent";
+				//echo "<br>MessageId: {$msgId} <==> ID:{$msg->id} <==> Error: SMS Resent";
 			}
 		}
 

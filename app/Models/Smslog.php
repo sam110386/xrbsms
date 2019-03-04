@@ -114,11 +114,11 @@ class Smslog extends Model
       $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";
       $authorizationEncoded = base64_encode($authorization);
       $baseUrl = $smsApiConfig->apiurl;
-      
+      $sender=(isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS"; 
       if(isset($data['sender']) && !empty($data['sender'])){
         $from = $data['sender'];
       }else{
-        $from = (isset($smsApiConfig->from)) ? $smsApiConfig->from : "INFOSMS";       
+        $from = $sender;      
       }
       $dataToSave['sender']=$from;
 
@@ -132,7 +132,7 @@ class Smslog extends Model
         CURLOPT_TIMEOUT => 30,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => "{ \"from\":\"$from\", \"to\":\"$phone\", \"text\":\"$msg\" }",
+        CURLOPT_POSTFIELDS => "{ \"from\":\"$sender\", \"to\":\"$phone\", \"text\":\"$msg\" }",
         CURLOPT_HTTPHEADER => array(
           "accept: application/json",
           "authorization: Basic {$authorizationEncoded}",
