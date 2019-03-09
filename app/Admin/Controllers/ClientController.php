@@ -259,7 +259,7 @@ class ClientController extends Controller
                 $filter->equal('gender')->select(['m' => 'Male','F'=>'Female']);
             });
             $filter->column(1/2, function ($filter) {
-                $filter->equal('taxcategory', 'Tax Category')->select(['Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence']);
+                /*$filter->equal('taxcategory', 'Tax Category')->select(['Returns'=>"Returns",'Motor Vehicle' => 'Motor Vehicle','Driving Licence' => 'Driving Licence']);*/
                 $filter->between('due_date')->datetime();
             });
         });

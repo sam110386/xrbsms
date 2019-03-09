@@ -19,4 +19,5 @@ use Illuminate\Routing\Router;
 Route::group(['prefix'=> 'v1'], function (Router $router) {
     $router->post('/sms/send', 'ApiController@sendSms');
     $router->post('/sms/status', 'ApiController@getSmsStatus');
+    $router->post('/user/add', 'ApiController@addClient');
 });
