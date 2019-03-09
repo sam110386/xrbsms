@@ -107,8 +107,6 @@ class Smslog extends Model
       $dataToSave['message'] = $msg;
       $dataToSave['retry_count'] = (isset($data['retry_count'])) ? $data['retry_count'] : 0;
 
-
-
         // SEND SMS START
       $smsApiConfig = Smsapisetting::find(1);
       $authorization = "{$smsApiConfig->username}:{$smsApiConfig->passowrd}";

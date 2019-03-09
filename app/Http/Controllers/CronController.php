@@ -13,7 +13,7 @@ use App\Models\Smslog;
 use App\Models\Smsapisetting;
 class CronController extends Controller{
 	/* get filtered Clients from Clients table and store client phone number,msg body in cron sms table.  */
-	public function getClients(){
+	public static function getClients(){
 		$smsscheduletypes = DB::table('smsscheduletypes')->select('frequency', 'en_smsbody','category');
 		$smsscheduletypes->where('status',1);
 		$smsscheduletypes->where('category', '!=' , NULL);
@@ -29,9 +29,10 @@ class CronController extends Controller{
 				if($clients) $this->addClientInSmsCron($clients,$smsBody);
 			}
 		}else{
-			echo "No Schedule Found!";
+			//echo "No Schedule Found!";
 		}
-		echo "Cron Executed";
+		//echo "Cron Executed";
+		return;
 	}
 
 	private function addClientInSmsCron($clients,$msg){
@@ -43,7 +44,7 @@ class CronController extends Controller{
 		}
 	}
 
-	public function sendSms(){
+	public static function sendSms(){
 		$settings = GeneralSetting::findOrFail(1);
 		$fromTime = $settings->time_from;
 		$toTime = $settings->time_to;
@@ -53,7 +54,7 @@ class CronController extends Controller{
 			$smslogModel = config('admin.database.smslog_model');
 			$smslogModel= new $smslogModel();
 
-			$crons = ClientSmsCron::where('sent',0)->get();
+			$crons = ClientSmsCron::where('sent',0)->limit(50)->get();
 			foreach ($crons as $cron) {
 				$sms = ['phone' => $cron->phone , 'client_id' => $cron->client_id , 'message' => $cron->message ];
 				$smslogModel->sendAndLogSms($sms);
@@ -61,12 +62,12 @@ class CronController extends Controller{
 				
 			}			
 		}else{
-			die("This is not right time to send sms ;-)");
+			//die("This is not right time to send sms ;-)");
 		}
 		return;
 	}
-
-	public function checkSmsStatus(){
+	/*****/
+	public static function checkSmsStatus(){
 		$msgids = Smslog::where('status',1)->get();
 		foreach($msgids as $msg){
 			$msgId = $msg->message_id;
@@ -94,15 +95,12 @@ class CronController extends Controller{
 					),
 				));
 
-				echo "<br>".$response = curl_exec($curl);
+				$response = curl_exec($curl);
 				$err = curl_error($curl);
-				
 				curl_close($curl);
 				$responseArr = json_decode($response,true);
-				echo "<pre>";print_r($responseArr);
-				if ($err) {
-					echo "<br>MessageId: {$msgId} <==> cURL Error #:" . $err;
-				} else {
+				//echo "<pre>";print_r($responseArr);
+				if (!$err) {
 					if(isset($responseArr['results'][0])){
 						$responseArr = $responseArr['results'][0];
 						$msg['error'] = $responseArr['status']['description'];
@@ -111,7 +109,7 @@ class CronController extends Controller{
 						$msg->retry_count++;
 						$msg->update();
 					}else{
-						echo "<br>MessageId: {$msgId} <==> Error: Response not received";
+						//echo "<br>MessageId: {$msgId} <==> Error: Response not received";
 						//forcefully done if no response recieved
 						$msg['status'] = 3;
 						$msg->update();
@@ -125,7 +123,7 @@ class CronController extends Controller{
 				//echo "<br>MessageId: {$msgId} <==> ID:{$msg->id} <==> Error: SMS Resent";
 			}
 		}
-
+		return;
 	}
 
 }
