@@ -103,7 +103,7 @@ class SmslogsController extends Controller
         $show->created_at(trans('Time Stamp'))->as(function($date){
             return CommonMethod::formatDateWithTime($date);
         });
-        $show->status()->using(['1' => 'Sent Successfully', '0' => 'Not Sent']);
+        $show->status()->using(['1' => 'Pending', '0' => 'Not Sent','2'=>'Undeliverable','3'=>"Delivered",'4'=>'Expired','5'=>'Rejected']);
         $show->type()->using(config('admin.smslogtypes'));
         $show->panel()
         ->tools(function ($tools) {

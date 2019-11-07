@@ -13,10 +13,10 @@
     <div class="box-body">
         <div class="table-responsive">
             <table class="table table-striped">
-                <tr>
+                <!--tr>
                     <td width="120px">SMS Balance</td>
                     <td>{{ $balance }}</td>
-                </tr>
+                </tr-->
                 <tr>
                     <td width="120px">Today Sent</td>
                     <td>
